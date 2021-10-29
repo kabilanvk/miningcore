@@ -58,6 +58,6 @@ curl -v -X PUT "http://localhost:1080/mockserver/expectation" -d '{
 					 \"blockTime_sec\":\"19.61\"
 				  }
 			   ]
-			}\"
+			}"
   }
 }'
