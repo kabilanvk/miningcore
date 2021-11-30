@@ -56,6 +56,7 @@ namespace Miningcore.PoolCore
 
         internal static ClusterConfig clusterConfig;
         internal static IContainer container;
+        internal static string ShareRecovery { private get; set; }
 
         internal static void StartMiningCorePool(string configFile)
         {
@@ -137,6 +138,12 @@ namespace Miningcore.PoolCore
                     EquihashSolver.MaxThreads = clusterConfig.EquihashMaxThreads.Value;
 
                 MonitorGarbageCollection();
+
+                // Recover shares from file if exists 
+                if(!string.IsNullOrEmpty(ShareRecovery))
+                {
+                    RecoverSharesAsync(ShareRecovery).Wait();
+                }
 
                 // Start Miningcore Pool Services
                 if(!Cts.IsCancellationRequested)

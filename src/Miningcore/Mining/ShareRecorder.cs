@@ -273,11 +273,14 @@ namespace Miningcore.Mining
                         }
                     }
                 }
-
+                
                 if(failCount == 0)
                     logger.Info(() => $"Successfully imported {successCount} shares");
                 else
                     logger.Warn(() => $"Successfully imported {successCount} shares with {failCount} failures");
+
+                // Cleanup file after exporting shares
+                await File.WriteAllTextAsync(recoveryFilename, string.Empty);
             }
 
             catch(FileNotFoundException)
