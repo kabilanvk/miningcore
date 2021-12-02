@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -88,6 +89,31 @@ namespace Miningcore.Crypto.Hashing.Ethash
             }
 
             await result.GenerateAsync(dagDir, logger, ct);
+
+            // Cleanup old Dag files asynchronously
+            _ = Task.Run(() => {
+                try
+                {
+                    string[] dagFiles = Directory.GetFiles(dagDir);
+
+                    if (dagFiles.Length > numCaches)
+                    {
+                        // Comparing f2 to f1 (instead of f1 to f2) will sort the filenames in descending order by creation time
+                        // i.e., newer files will be first, older files after
+                        Array.Sort(dagFiles, Comparer<string>.Create((f1, f2) => File.GetCreationTimeUtc(f2).CompareTo(File.GetCreationTimeUtc(f1))));
+
+                        for (int i = numCaches; i < dagFiles.Length; i++)
+                        {
+                            File.Delete(dagFiles[i]);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.Error(() => $"Exception while cleaning up old Dag files in {dagDir}: {e}");
+                }
+            });
+
             return result;
         }
     }
