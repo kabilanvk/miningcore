@@ -227,19 +227,13 @@ namespace Miningcore.Payments
                         if(!block.Effort.HasValue)  // fill block effort if empty
                             await CalculateBlockEffortAsync(pool, block, handler);
 
+                        Logger.Info(() => $"Marking Block {block.BlockHeight} {block.Status} by pool {pool.Id}");
                         switch(block.Status)
                         {
                             case BlockStatus.Confirmed:
                                 // blockchains that do not support block-reward payments via coinbase Tx
                                 // must generate balance records for all reward recipients instead
                                 var blockReward = await handler.UpdateBlockRewardBalancesAsync(con, tx, block, pool);
-
-                                Logger.Info(() => $" --Pool {pool}");
-                                Logger.Info(() => $" --Block {block}");
-                                Logger.Info(() => $" --Block reward {blockReward}");
-
-                                Logger.Info(() => $" --Con {con}");
-                                Logger.Info(() => $" --tx {tx}");
 
                                 await scheme.UpdateBalancesAsync(con, tx, pool, clusterConfig, handler, block, blockReward);
                                 await blockRepo.UpdateBlockAsync(con, tx, block);

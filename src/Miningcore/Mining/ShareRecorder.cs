@@ -121,6 +121,7 @@ namespace Miningcore.Mining
 
                         var blockEntity = mapper.Map<Block>(share);
                         blockEntity.Status = BlockStatus.Pending;
+                        logger.Info(() => $"Storing BlockCandidate {blockEntity.BlockHeight} in BlockRepo for Pool {share.PoolId}");
                         await blockRepo.InsertAsync(con, tx, blockEntity);
                         messageBus.NotifyBlockFound(share.PoolId, blockEntity, pools[share.PoolId].Template);
                     }

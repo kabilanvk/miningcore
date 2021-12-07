@@ -59,7 +59,7 @@ namespace Miningcore.Crypto.Hashing.Ethash
                     // If we have the new DAG pre-generated, use that, otherwise create a new one
                     if(future != null && future.Epoch == epoch)
                     {
-                        logger.Debug(() => $"Using pre-generated DAG for epoch {epoch}");
+                        logger.Info(() => $"Using pre-generated DAG for epoch {epoch}");
 
                         result = future;
                         future = null;
