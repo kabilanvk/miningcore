@@ -203,9 +203,10 @@ namespace Miningcore.Blockchain.Ethereum
 
                             if(extraConfig?.KeepTransactionFees == false && blockInfo.Transactions?.Length > 0)
                                 block.Reward += await GetTxRewardAsync(blockInfo); // tx fees
-
+                            
                             var burntFee = blockInfo.BaseFeePerGas * blockInfo.GasUsed; // burnt fees
-                            logger.Info(() => $"[{LogCategory}] Unlocked block {block.BlockHeight} worth {FormatAmount(block.Reward - burntFee)}");
+                            block.Reward = block.Reward - burntFee;
+                            logger.Info(() => $"[{LogCategory}] Unlocked block {block.BlockHeight} worth {FormatAmount(block.Reward)}");
 
                             messageBus.NotifyBlockUnlocked(poolConfig.Id, block, coin);
                         }
