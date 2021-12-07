@@ -62,7 +62,7 @@ namespace Miningcore
                 // Shares recovery from file to database
                 if(shareRecoveryOption.HasValue())
                 {
-                    Pool.RecoverSharesAsync(shareRecoveryOption.Value()).Wait();
+                    Pool.ShareRecovery = shareRecoveryOption.Value();
                 }
 
                 if(configFileOption.HasValue())
