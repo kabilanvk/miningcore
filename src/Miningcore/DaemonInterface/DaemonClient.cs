@@ -36,7 +36,7 @@ namespace Miningcore.DaemonInterface
     /// <summary>
     /// Provides JsonRpc based interface to a cluster of blockchain daemons for improved fault tolerance
     /// </summary>
-    public class DaemonClient
+    public class DaemonClient : IDaemonClient
     {
         public DaemonClient(JsonSerializerSettings serializerSettings, IMessageBus messageBus, string server, string poolId)
         {
@@ -300,8 +300,7 @@ namespace Miningcore.DaemonInterface
         }
 
         #endregion // API-Surface
-
-
+        
         private async Task<JsonRpcResponse> BuildRequestTask(ILogger logger, DaemonEndpointConfig endPoint, string method, object payload, CancellationToken ct, JsonSerializerSettings payloadJsonSerializerSettings = null)
         {
             var rpcRequestId = GetRequestId();
