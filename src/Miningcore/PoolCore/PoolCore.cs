@@ -33,8 +33,10 @@ using Newtonsoft.Json;
 using NLog;
 using ILogger = NLog.ILogger;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using Miningcore.DataStore.Cloud.EtherScan;
 
+[assembly: InternalsVisibleTo("Miningcore.Tests")]
 namespace Miningcore.PoolCore
 {
     internal class Pool
@@ -104,7 +106,7 @@ namespace Miningcore.PoolCore
                 // require 64-bit Windows OS
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && RuntimeInformation.ProcessArchitecture == Architecture.X86)
                     throw new PoolStartupAbortException("Miningcore requires 64-Bit Windows");
-                
+
                 clusterConfig = config;
 
                 // Initialize Logging
