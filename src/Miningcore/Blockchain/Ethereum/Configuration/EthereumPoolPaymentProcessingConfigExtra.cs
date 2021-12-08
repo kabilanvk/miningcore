@@ -81,5 +81,10 @@ namespace Miningcore.Blockchain.Ethereum.Configuration
         /// Hex encoded private key
         /// </summary>
         public string PrivateKey { get; set; }
+
+        /// <summary>
+        /// Percentage share miners receive as a decimal from 0 to 1
+        /// </summary>
+        public decimal RecipientShare { get; set; }
     }
 }
