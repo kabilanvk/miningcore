@@ -826,6 +826,11 @@ namespace Miningcore.Blockchain.Ethereum
             if (recipientShare <= 0 || recipientShare > 1)
             {
                 recipientShare = DefaultRecipientShare;
+                logger.Info(() => $"Using the default recipient share of {recipientShare}");
+            }
+            else
+            {
+                logger.Info(() => $"Using the configured receipient share of {recipientShare}");
             }
 
             var recipientBlockReward = (double) (blockReward * recipientShare);
