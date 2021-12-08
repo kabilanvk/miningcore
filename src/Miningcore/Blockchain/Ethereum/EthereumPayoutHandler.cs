@@ -830,7 +830,7 @@ namespace Miningcore.Blockchain.Ethereum
             }
             else
             {
-                logger.Info(() => $"Using the configured receipient share of {recipientShare}");
+                logger.Info(() => $"Using the configured recipient share of {recipientShare}");
             }
 
             var recipientBlockReward = (double) (blockReward * recipientShare);
