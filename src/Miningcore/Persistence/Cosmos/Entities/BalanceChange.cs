@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 
 namespace Miningcore.Persistence.Cosmos.Entities
 {
-    public class BalanceChange : IDocumentModel
+    public class BalanceChange
     {
         [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
+        public string Id { get => Created.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ");}
 
         [JsonProperty(PropertyName = "poolId")]
         public string PoolId { get; set; }
@@ -20,9 +20,10 @@ namespace Miningcore.Persistence.Cosmos.Entities
         [JsonProperty(PropertyName = "usage")]
         public string Usage {get; set;}
 
-        [JsonProperty(PropertyName = "dateTime")]
+        [JsonProperty(PropertyName = "created")]
         public DateTime Created { get; set; }
 
+        [JsonIgnore]
         public string CollectionName { get => "balanceChanges"; }
 
         [JsonProperty(PropertyName = "partitionKey")]
