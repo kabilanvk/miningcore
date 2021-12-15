@@ -77,8 +77,8 @@ namespace Miningcore.Blockchain.Ethereum
         private const int TwentyFourHrs = 24;
         private const string BlockReward = "blockReward";
         private const string BlockAvgTime = "blockAvgTime";
-        private const decimal RecipientShare = 0.85m;
-        private const float Sixty = 60;
+        private const decimal DefaultRecipientShare = 0.85m;
+        private const float Sixty = 60; // The most important constant defined in this program
         private const decimal MaxPayout = 0.1m; // ethereum
         private const double MaxBlockReward = 0.1d; //ethereum
         private static ConcurrentDictionary<string, string> transactionHashes = new();
@@ -821,7 +821,19 @@ namespace Miningcore.Blockchain.Ethereum
                 payoutInterval = 600;
             }
 
-            var recipientBlockReward = (double) (blockReward * RecipientShare);
+            // Try to get the recipient share from the config
+            var recipientShare = extraConfig.RecipientShare;
+            if (recipientShare <= 0 || recipientShare > 1)
+            {
+                recipientShare = DefaultRecipientShare;
+                logger.Info(() => $"Using the default recipient share of {recipientShare}");
+            }
+            else
+            {
+                logger.Info(() => $"Using the configured recipient share of {recipientShare}");
+            }
+
+            var recipientBlockReward = (double) (blockReward * recipientShare);
             var blockFrequencyPerPayout = blockFrequency / (payoutInterval / Sixty);
             var blockData = recipientBlockReward / blockFrequencyPerPayout;
             logger.Info(() => $"BlockData : {blockData}, Network Block Time : {avgBlockTime}, Block Frequency : {blockFrequency}, PayoutInterval : {payoutInterval}");
