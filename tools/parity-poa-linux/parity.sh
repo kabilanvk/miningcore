@@ -1,1 +1,1 @@
-parity --config node0.toml --tracing=on
+./parity --config node0.toml --tracing=on

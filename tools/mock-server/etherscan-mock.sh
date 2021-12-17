@@ -2,7 +2,10 @@
 set -x
 set -e
 
-java -jar ./mockserver-netty-5.11.1-jar-with-dependencies.jar -serverPort 1080
+kill -9 $(pgrep -f mockserver) || true
+
+nohup java -jar ./mockserver-netty-5.11.1-jar-with-dependencies.jar -serverPort 1080 > mock-server.txt &
+sleep 5
 
 curl -v -X PUT "http://localhost:1080/mockserver/clear" -d '{
     "path" : "/etherscan/api"
@@ -62,6 +65,6 @@ curl -v -X PUT "http://localhost:1080/mockserver/expectation" -d '{
 					 \"blockTime_sec\":\"19.61\"
 				  }
 			   ]
-			}\"
+			}"
   }
 }'
