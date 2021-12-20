@@ -78,6 +78,8 @@ namespace Miningcore.Api
                     services.AddSingleton((IComponentContext) Pool.container);
                     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+                    services.AddTransient<WebSocketNotificationsRelay>();
+
 					// ToDo: Setting check
 					//services.AddMvc()
                     //    .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)

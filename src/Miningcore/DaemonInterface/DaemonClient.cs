@@ -300,7 +300,7 @@ namespace Miningcore.DaemonInterface
         }
 
         #endregion // API-Surface
-        
+
         private async Task<JsonRpcResponse> BuildRequestTask(ILogger logger, DaemonEndpointConfig endPoint, string method, object payload, CancellationToken ct, JsonSerializerSettings payloadJsonSerializerSettings = null)
         {
             var rpcRequestId = GetRequestId();
@@ -465,7 +465,9 @@ namespace Miningcore.DaemonInterface
                 Debug.Assert(x.IsCompletedSuccessfully);
 
                 if(x.Result?.Result is JToken token)
-                    resp.Response = token?.ToObject<TResponse>(serializer);
+                    resp.Response = token.ToObject<TResponse>(serializer);
+                else if(typeof(TResponse) == typeof(string))
+                    resp.Response = (TResponse) (object) x.Result?.Result.ToString();
                 else
                     resp.Response = (TResponse) x.Result?.Result;
 

@@ -37,12 +37,13 @@ using System.Runtime.CompilerServices;
 using Miningcore.DataStore.Cloud.EtherScan;
 
 [assembly: InternalsVisibleTo("Miningcore.Tests")]
+[assembly: InternalsVisibleTo("Miningcore.Integration.Tests")]
 namespace Miningcore.PoolCore
 {
     internal class Pool
     {
 
-        private static readonly CancellationTokenSource Cts = new CancellationTokenSource();
+        private static readonly CancellationTokenSource Cts = new();
         private static readonly ILogger Logger = LogManager.GetLogger("PoolCore");
         private static ShareRecorder shareRecorder;
         private static ShareRelay shareRelay;
@@ -55,10 +56,13 @@ namespace Miningcore.PoolCore
         private static readonly ConcurrentDictionary<string, IMiningPool> Pools = new ConcurrentDictionary<string, IMiningPool>();
         private static AdminGcStats gcStats = new AdminGcStats();
         private static readonly IPAddress IPv4LoopBackOnIPv6 = IPAddress.Parse("::ffff:127.0.0.1");
+        private static bool killProcessOnExit = true;
 
         internal static ClusterConfig clusterConfig;
         internal static IContainer container;
         internal static string ShareRecovery { private get; set; }
+
+        #region Internal Methods
 
         internal static void StartMiningCorePool(string configFile)
         {
@@ -78,6 +82,24 @@ namespace Miningcore.PoolCore
                 ? PoolConfig.GetConfigFromKeyVault(vault, appConfig)
                 : PoolConfig.GetConfigFromAppConfig(Environment.GetEnvironmentVariable(PoolConfig.ConnectionString), appConfig));
         }
+
+        internal static void Stop(TimeSpan? stopAfter = null, bool killProcess = true)
+        {
+            if(stopAfter != null)
+            {
+                Cts.CancelAfter(stopAfter.Value);
+            }
+            else
+            {
+                Cts.Cancel();
+            }
+
+            killProcessOnExit = killProcess;
+        }
+
+        #endregion
+
+        #region Private Methods
 
         private static void StartMiningCorePoolInternal(ClusterConfig config)
         {
@@ -207,7 +229,7 @@ namespace Miningcore.PoolCore
                 shareReceiver?.Stop();
                 shareRecorder?.Stop();
                 statsRecorder?.Stop();
-                Process.GetCurrentProcess().Kill();
+                if(killProcessOnExit) Process.GetCurrentProcess().Kill();
 
             }
 
@@ -398,5 +420,7 @@ namespace Miningcore.PoolCore
             {
             }
         }
+
+        #endregion
     }
 }
