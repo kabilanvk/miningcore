@@ -17,11 +17,24 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: Bash@3
+- task: UseDotNet@2
+  displayName: Use dotnet 5.x
   inputs:
-    filePath: './scripts/build_pipeline.sh'
+    packageType: 'sdk'
+    version: '5.x'
+- task: Bash@3
+  displayName: Run build
+  inputs:
+    filePath: './scripts/build_test_pipeline.sh'
     arguments: '$(System.DefaultWorkingDirectory) $(Build.ArtifactStagingDirectory) $(buildConfiguration)'
     workingDirectory: '$(System.DefaultWorkingDirectory)'
+- task: DotNetCoreCLI@2
+  displayName: Run tests
+  inputs:
+    command: 'test'
+    arguments: '--no-build --filter "FullyQualifiedName~PayoutTests" ./Miningcore.Integration.Tests.dll'
+    testRunTitle: 'NCrypto_Pool'
+    workingDirectory: '$(Build.ArtifactStagingDirectory)'
 - upload: $(Build.ArtifactStagingDirectory)
   displayName: 'Publish package'
   artifact: drop
