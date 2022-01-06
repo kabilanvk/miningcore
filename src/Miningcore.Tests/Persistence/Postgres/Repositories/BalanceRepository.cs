@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,13 +10,6 @@ namespace Miningcore.Tests.Persistence.Postgres.Repositories
 {
     public class BalanceRepository : IBalanceRepository
     {
-        public BalanceRepository(IMapper mapper)
-        {
-            this.mapper = mapper;
-        }
-
-        private readonly IMapper mapper;
-
         public Task<int> AddAmountAsync(IDbConnection con, IDbTransaction tx, string poolId, string address, decimal amount, string usage)
         {
             throw new NotImplementedException();
@@ -65,7 +59,7 @@ namespace Miningcore.Tests.Persistence.Postgres.Repositories
             };
         }
 
-        public Task<BalanceSummary> GetTotalBalanceSum(IDbConnection connection, string poolId, decimal minimum)
+        public Task<List<BalanceSummary>> GetTotalBalanceSum(IDbConnection connection, string poolId, decimal minimum)
         {
             throw new NotImplementedException();
         }

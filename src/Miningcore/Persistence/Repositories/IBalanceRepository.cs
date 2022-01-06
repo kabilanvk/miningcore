@@ -18,6 +18,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Miningcore.Configuration;
@@ -32,6 +33,6 @@ namespace Miningcore.Persistence.Repositories
         Task<Balance> GetBalanceWithPaidDateAsync(IDbConnection con, string poolId, string address);
         Task<Balance[]> GetPoolBalancesOverThresholdAsync(IDbConnection con, string poolId, decimal minimum);
         Task<Balance[]> GetPoolBalancesOverThresholdAsync(IDbConnection con, string poolId, decimal minimum, int recordLimit);
-        Task<BalanceSummary> GetTotalBalanceSum(IDbConnection connection, string poolId, decimal minimum);
+        Task<List<BalanceSummary>> GetTotalBalanceSum(IDbConnection connection, string poolId, decimal minimum);
     }
 }
