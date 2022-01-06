@@ -24,7 +24,7 @@ namespace Miningcore.Persistence.Cosmos.Entities
         public DateTime Created { get; set; }
 
         [JsonIgnore]
-        public string CollectionName { get => "balanceChanges"; }
+        public string CollectionName { get => "BalanceChanges"; }
 
         [JsonProperty(PropertyName = "partitionKey")]
         public string PartitionKey { get => $"{PoolId}-{Address}"; }
