@@ -176,9 +176,17 @@ namespace Miningcore.Payments
 
                     TelemetryUtil.TrackEvent($"Balance_{pool.Id}", new Dictionary<string, string>
                     {
-                        {"TotalBalance", poolBalance.Result.TotalAmount.ToStr()},
-                        {"TotalOverThreshold", poolBalance.Result.TotalAmountOverThreshold.ToStr()},
-                        {"WalletBalance", walletBalance.Result.ToStr()}
+                        {"TotalBalance", poolBalance.Result.Sum(b => b.TotalAmount).ToStr()},
+                        {"TotalOverThreshold", poolBalance.Result.Sum(b => b.TotalAmountOverThreshold).ToStr()},
+                        {"WalletBalance", walletBalance.Result.ToStr()},
+                        {"BalLT30Days", poolBalance.Result.FirstOrDefault(b=>b.NoOfDaysOld == 0)?.TotalAmount.ToStr()},
+                        {"CusLT30Days", poolBalance.Result.FirstOrDefault(b=>b.NoOfDaysOld == 0)?.CustomersCount.ToString()},
+                        {"BalGT30Days", poolBalance.Result.FirstOrDefault(b=>b.NoOfDaysOld == 30)?.TotalAmount.ToStr()},
+                        {"CusGT30Days", poolBalance.Result.FirstOrDefault(b=>b.NoOfDaysOld == 30)?.CustomersCount.ToString()},
+                        {"BalGT60Days", poolBalance.Result.FirstOrDefault(b=>b.NoOfDaysOld == 60)?.TotalAmount.ToStr()},
+                        {"CusGT60Days", poolBalance.Result.FirstOrDefault(b=>b.NoOfDaysOld == 60)?.CustomersCount.ToString()},
+                        {"BalGT90Days", poolBalance.Result.FirstOrDefault(b=>b.NoOfDaysOld == 90)?.TotalAmount.ToStr()},
+                        {"CusGT90Days", poolBalance.Result.FirstOrDefault(b=>b.NoOfDaysOld == 90)?.CustomersCount.ToString()},
                     });
                 }
                 catch(InvalidOperationException ex)

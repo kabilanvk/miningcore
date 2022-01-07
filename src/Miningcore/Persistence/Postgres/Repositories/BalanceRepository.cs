@@ -19,6 +19,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -116,16 +117,23 @@ namespace Miningcore.Persistence.Postgres.Repositories
                 .ToArray();
         }
 
-        public async Task<BalanceSummary> GetTotalBalanceSum(IDbConnection con, string poolId, decimal minimum)
+        public async Task<List<BalanceSummary>> GetTotalBalanceSum(IDbConnection con, string poolId, decimal minimum)
         {
             logger.LogInvoke();
 
-            const string query = "SELECT SUM(amount) as TotalAmount, SUM(CASE WHEN amount >= @minimum THEN amount ELSE 0 END) as TotalAmountOverThreshold " +
-                                 "FROM balances WHERE poolid = @poolId";
+            const string query = @"SELECT days_old AS NoOfDaysOld, COUNT(address) AS CustomersCount, SUM(amount) AS TotalAmount,
+            SUM(over_threshold) AS TotalAmountOverThreshold
+            FROM(SELECT *, CASE WHEN DATE_PART('day', now() - updated) >= 90 THEN 90
+                                WHEN DATE_PART('day', now() - updated) >= 60 THEN 60
+                                WHEN DATE_PART('day', now() - updated) >= 30 THEN 30
+                                ELSE 0 END AS days_old,
+                           CASE WHEN amount >= @minimum THEN amount ELSE 0 END as over_threshold
+            FROM balances WHERE poolid = @poolId ORDER BY updated) AS history
+            GROUP BY days_old ORDER BY days_old";
 
             return (await con.QueryAsync<Entities.BalanceSummary>(query, new { poolId, minimum }))
                 .Select(mapper.Map<BalanceSummary>)
-                .FirstOrDefault();
+                .ToList();
         }
     }
 }
