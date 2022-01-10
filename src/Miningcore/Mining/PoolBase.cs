@@ -184,6 +184,7 @@ namespace Miningcore.Mining
                 if(newDiff != null)
                 {
                     logger.Debug(() => $"[{client.ConnectionId}] VarDiff update to {Math.Round(newDiff.Value, 2)}");
+                    TelemetryUtil.TrackMetric("VarDiff_Update", newDiff.Value);
 
                     await OnVarDiffUpdateAsync(client, newDiff.Value);
                 }

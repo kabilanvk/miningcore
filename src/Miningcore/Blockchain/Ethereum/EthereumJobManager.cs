@@ -768,6 +768,8 @@ namespace Miningcore.Blockchain.Ethereum
                             {
                                 if(isNew)
                                     logger.Info(() => $"New work at height {currentJob.BlockTemplate.Height} and header {currentJob.BlockTemplate.Header} detected [{JobRefreshBy.WebSocket}]");
+                                else
+                                    logger.Info(() => $"Ignoring old block with height {currentJob.BlockTemplate.Height} [{JobRefreshBy.WebSocket}]");
                             })
                             .Where(isNew => isNew)
                             .Select(_ => GetJobParamsForStratum(true))
@@ -811,6 +813,8 @@ namespace Miningcore.Blockchain.Ethereum
                             {
                                 if(isNew)
                                     logger.Info(() => $"New work at height {currentJob.BlockTemplate.Height} and header {currentJob.BlockTemplate.Header} detected [WS]");
+                                else
+                                    logger.Info(() => $"Ignoring old block with height {currentJob.BlockTemplate.Height} [WS]");
                             })
                             .Where(isNew => isNew)
                             .Select(_ => GetJobParamsForStratum(true))
@@ -830,6 +834,8 @@ namespace Miningcore.Blockchain.Ethereum
                         {
                             if(isNew)
                                 logger.Info(() => $"New work at height {currentJob.BlockTemplate.Height} and header {currentJob.BlockTemplate.Header} detected [{JobRefreshBy.Poll}]");
+                            else
+                                logger.Info(() => $"Ignoring old block with height {currentJob.BlockTemplate.Height} [{JobRefreshBy.Poll}]");
                         })
                         .Where(isNew => isNew)
                         .Select(_ => GetJobParamsForStratum(true))
@@ -850,6 +856,8 @@ namespace Miningcore.Blockchain.Ethereum
                     {
                         if(isNew)
                             logger.Info(() => $"New work at height {currentJob.BlockTemplate.Height} and header {currentJob.BlockTemplate.Header} detected [{JobRefreshBy.BlockTemplateStream}]");
+                        else
+                            logger.Info(() => $"Ignoring old block with height {currentJob.BlockTemplate.Height} [{JobRefreshBy.BlockTemplateStream}]");
                     })
                     .Where(isNew => isNew)
                     .Select(_ => GetJobParamsForStratum(true))
