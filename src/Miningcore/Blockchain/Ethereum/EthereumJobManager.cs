@@ -457,7 +457,7 @@ namespace Miningcore.Blockchain.Ethereum
                 Directory.CreateDirectory(dagDir);
 
                 // setup ethash
-                ethash = new EthashFull(3, dagDir);
+                ethash = new EthashFull(3, dagDir, logger);
             }
         }
 
