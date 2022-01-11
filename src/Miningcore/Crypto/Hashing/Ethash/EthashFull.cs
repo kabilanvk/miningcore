@@ -94,13 +94,13 @@ namespace Miningcore.Crypto.Hashing.Ethash
             _ = Task.Run(() => {
                 try
                 {
-                    logger.Info(() => $"Cleaning up old DAG files in {dagDir}");
+                    logger.Debug($"Cleaning up old DAG files in {dagDir}");
 
                     string[] dagFiles = Directory.GetFiles(dagDir);
 
                     if (dagFiles.Length > numCaches)
                     {
-                        logger.Info(() => $"There are {dagFiles.Length} DAG files, and {dagFiles.Length - numCaches} will be deleted");
+                        logger.Info($"There are {dagFiles.Length} DAG files, and {dagFiles.Length - numCaches} will be deleted");
 
                         // Comparing f2 to f1 (instead of f1 to f2) will sort the filenames in descending order by creation time
                         // i.e., newer files will be first, older files after
@@ -108,13 +108,13 @@ namespace Miningcore.Crypto.Hashing.Ethash
 
                         for (int i = numCaches; i < dagFiles.Length; i++)
                         {
-                            logger.Info(() => $"Deleting {dagFiles[i]}");
+                            logger.Debug($"Deleting {dagFiles[i]}");
                             File.Delete(dagFiles[i]);
-                            logger.Info(() => $"Deleted {dagFiles[i]}");
+                            logger.Info($"Deleted {dagFiles[i]}");
                         }
                     }
 
-                    logger.Info(() => $"Finished cleaning up old DAG files in {dagDir}");
+                    logger.Debug($"Finished cleaning up old DAG files in {dagDir}");
                 }
                 catch (Exception e)
                 {
