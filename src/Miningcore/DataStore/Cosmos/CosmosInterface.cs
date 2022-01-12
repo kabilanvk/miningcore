@@ -65,16 +65,24 @@ namespace Miningcore.DataStore.Cosmos {
             if (cosmosConfig.PreferredLocations != null && cosmosConfig.PreferredLocations.Count > 0)
                 cosmosClientOptions.ApplicationPreferredRegions = cosmosConfig.PreferredLocations;
 
-            var cosmos = new CosmosClient(cosmosConfig.EndpointUrl, cosmosConfig.AuthorizationKey, cosmosClientOptions);
+            try 
+            {
+                var cosmos = new CosmosClient(cosmosConfig.EndpointUrl, cosmosConfig.AuthorizationKey, cosmosClientOptions);
 
-            // register CosmosClient
-            builder.RegisterInstance(cosmos).AsSelf().SingleInstance();
+                // register CosmosClient
+                builder.RegisterInstance(cosmos).AsSelf().SingleInstance();
 
-            // register repositories
-            builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
-                .Where(t => t.Namespace.StartsWith(typeof(BalanceChangeRepository).Namespace))
-                .AsImplementedInterfaces()
-                .SingleInstance();
+                // register repositories
+                builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
+                    .Where(t => t.Namespace.StartsWith(typeof(BalanceChangeRepository).Namespace))
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
+            }
+            catch (Exception e)
+            {
+                logger.Error(() => $"Fail to connect to the cosmos database {e}");
+                throw e;
+            }
         }
     }
 }
