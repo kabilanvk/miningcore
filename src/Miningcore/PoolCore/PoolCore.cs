@@ -35,6 +35,7 @@ using ILogger = NLog.ILogger;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using Miningcore.DataStore.Cloud.EtherScan;
+using Miningcore.DataStore.Cosmos;
 
 [assembly: InternalsVisibleTo("Miningcore.Tests")]
 [assembly: InternalsVisibleTo("Miningcore.Integration.Tests")]
@@ -154,6 +155,7 @@ namespace Miningcore.PoolCore
                 builder.Register((ctx, parms) => amConf.CreateMapper());
                 builder.Register(_ => new EtherScanEndpoint(clusterConfig)).SingleInstance();
                 PostgresInterface.ConnectDatabase(builder);
+                CosmosInterface.ConnectDatabase(builder);
 
                 container = builder.Build();
 
