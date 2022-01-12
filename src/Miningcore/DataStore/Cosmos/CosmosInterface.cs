@@ -48,31 +48,24 @@ namespace Miningcore.DataStore.Cosmos {
 
                 if (Enum.TryParse(cosmosConfig.ConsistencyLevel, out ConsistencyLevel consistencyLevel))
                     cosmosClientOptions.ConsistencyLevel = consistencyLevel;
-                    logger.Info(consistencyLevel);
 
                 if (Enum.TryParse(cosmosConfig.ConnectionMode, out ConnectionMode connectionMode))
                     cosmosClientOptions.ConnectionMode = connectionMode;
-                    logger.Info(connectionMode);
 
                 if (Double.TryParse(cosmosConfig.RequestTimeout, out Double requestTimeout))
                     cosmosClientOptions.RequestTimeout = TimeSpan.FromSeconds(requestTimeout);
-                    logger.Info(requestTimeout);
     
                 if (int.TryParse(cosmosConfig.MaxRetryAttempt, out int maxRetryAttempt))
                     cosmosClientOptions.MaxRetryAttemptsOnRateLimitedRequests = maxRetryAttempt;
-                    logger.Info(maxRetryAttempt);
 
                 if (Double.TryParse(cosmosConfig.MaxRetryWaitTime, out Double maxRetryWaitTime))
                     cosmosClientOptions.MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(maxRetryWaitTime);
-                    logger.Info(maxRetryWaitTime);
                 
                 if (int.TryParse(cosmosConfig.MaxPoolSize, out int maxPoolSize))
                     cosmosClientOptions.MaxRequestsPerTcpConnection = maxPoolSize;
-                    logger.Info(maxPoolSize);
 
                 if (cosmosConfig.PreferredLocations != null && cosmosConfig.PreferredLocations.Count > 0)
                     cosmosClientOptions.ApplicationPreferredRegions = cosmosConfig.PreferredLocations;
-                    logger.Info(cosmosConfig.PreferredLocations);
 
                 var cosmos = new CosmosClient(cosmosConfig.EndpointUrl, cosmosConfig.AuthorizationKey, cosmosClientOptions);
 
@@ -87,7 +80,6 @@ namespace Miningcore.DataStore.Cosmos {
             }
             catch (Exception e)
             {
-                logger.Info("Fail to connect to cosmos database");
                 logger.ThrowLogPoolStartupException($"Fail to connect to the cosmos database {e}");
             }
         }
