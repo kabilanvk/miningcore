@@ -64,6 +64,7 @@ namespace Miningcore.PoolCore
                 // Update dynamic pass and others config here
                 clusterConfig.Persistence.Postgres.User = remoteConfig.TryGetValue(AppConfigConstants.PersistencePostgresUser, clusterConfig.Persistence.Postgres.User);
                 clusterConfig.Persistence.Postgres.Password = remoteConfig.TryGetValue(AppConfigConstants.PersistencePostgresPassword, clusterConfig.Persistence.Postgres.Password);
+                clusterConfig.Persistence.Cosmos.AuthorizationKey = remoteConfig.TryGetValue(AppConfigConstants.PersistenceCosmosAuthorizationKey, clusterConfig.Persistence.Cosmos.AuthorizationKey);
                 foreach(var poolConfig in clusterConfig.Pools)
                 {
                     poolConfig.PaymentProcessing.Extra[CoinPassword] = remoteConfig.TryGetValue(string.Format(AppConfigConstants.CoinBasePassword, poolConfig.Id), poolConfig.PaymentProcessing.Extra[CoinPassword]?.ToString());
@@ -274,6 +275,8 @@ namespace Miningcore.PoolCore
             public static readonly string PrivateKey = "pools.{0}.paymentProcessing.PrivateKey";
             public static readonly string TlsPfxFile = "pools.{0}.{1}.tlsPfxFile";
             public static readonly string EtherscanApiKey = "pools.{0}.etherscan.apiKey";
+
+            public static readonly string PersistenceCosmosAuthorizationKey = "persistence.cosmos.authorizationKey";
         }
     }
 }
