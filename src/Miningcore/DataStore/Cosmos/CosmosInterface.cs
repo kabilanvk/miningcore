@@ -42,31 +42,31 @@ namespace Miningcore.DataStore.Cosmos {
 
             logger.Info(() => $"Connecting to Cosmos Server {cosmosConfig.EndpointUrl}");
 
-            var cosmosClientOptions = new CosmosClientOptions();
-
-            if (Enum.TryParse(cosmosConfig.ConsistencyLevel, out ConsistencyLevel consistencyLevel))
-                cosmosClientOptions.ConsistencyLevel = consistencyLevel;
-
-            if (Enum.TryParse(cosmosConfig.ConnectionMode, out ConnectionMode connectionMode))
-                cosmosClientOptions.ConnectionMode = connectionMode;
-
-            if (TimeSpan.TryParse(cosmosConfig.RequestTimeout, out TimeSpan requestTimeout))
-                cosmosClientOptions.RequestTimeout = requestTimeout;
- 
-            if (int.TryParse(cosmosConfig.MaxRetryAttempt, out int maxRetryAttempt))
-                cosmosClientOptions.MaxRetryAttemptsOnRateLimitedRequests = maxRetryAttempt;
-
-            if (TimeSpan.TryParse(cosmosConfig.MaxRetryWaitTime, out TimeSpan maxRetryWaitTime))
-                cosmosClientOptions.MaxRetryWaitTimeOnRateLimitedRequests = maxRetryWaitTime;
-
-            if (int.TryParse(cosmosConfig.MaxPoolSize, out int maxPoolSize))
-                cosmosClientOptions.MaxRequestsPerTcpConnection = maxPoolSize;
-
-            if (cosmosConfig.PreferredLocations != null && cosmosConfig.PreferredLocations.Count > 0)
-                cosmosClientOptions.ApplicationPreferredRegions = cosmosConfig.PreferredLocations;
-
             try 
             {
+                var cosmosClientOptions = new CosmosClientOptions();
+
+                if (Enum.TryParse(cosmosConfig.ConsistencyLevel, out ConsistencyLevel consistencyLevel))
+                    cosmosClientOptions.ConsistencyLevel = consistencyLevel;
+
+                if (Enum.TryParse(cosmosConfig.ConnectionMode, out ConnectionMode connectionMode))
+                    cosmosClientOptions.ConnectionMode = connectionMode;
+
+                if (TimeSpan.TryParse(cosmosConfig.RequestTimeout, out TimeSpan requestTimeout))
+                    cosmosClientOptions.RequestTimeout = requestTimeout;
+    
+                if (int.TryParse(cosmosConfig.MaxRetryAttempt, out int maxRetryAttempt))
+                    cosmosClientOptions.MaxRetryAttemptsOnRateLimitedRequests = maxRetryAttempt;
+
+                if (TimeSpan.TryParse(cosmosConfig.MaxRetryWaitTime, out TimeSpan maxRetryWaitTime))
+                    cosmosClientOptions.MaxRetryWaitTimeOnRateLimitedRequests = maxRetryWaitTime;
+
+                if (int.TryParse(cosmosConfig.MaxPoolSize, out int maxPoolSize))
+                    cosmosClientOptions.MaxRequestsPerTcpConnection = maxPoolSize;
+
+                if (cosmosConfig.PreferredLocations != null && cosmosConfig.PreferredLocations.Count > 0)
+                    cosmosClientOptions.ApplicationPreferredRegions = cosmosConfig.PreferredLocations;
+
                 var cosmos = new CosmosClient(cosmosConfig.EndpointUrl, cosmosConfig.AuthorizationKey, cosmosClientOptions);
 
                 // register CosmosClient
@@ -80,8 +80,8 @@ namespace Miningcore.DataStore.Cosmos {
             }
             catch (Exception e)
             {
-                logger.Error(() => $"Fail to connect to the cosmos database {e}");
-                throw e;
+                logger.Info("Fail to connect to cosmos database");
+                logger.ThrowLogPoolStartupException($"Fail to connect to the cosmos database {e}");
             }
         }
     }
