@@ -54,18 +54,18 @@ namespace Miningcore.DataStore.Cosmos {
                     cosmosClientOptions.ConnectionMode = connectionMode;
                     logger.Info(connectionMode);
 
-                if (TimeSpan.TryParse(cosmosConfig.RequestTimeout, out TimeSpan requestTimeout))
-                    cosmosClientOptions.RequestTimeout = requestTimeout;
+                if (Double.TryParse(cosmosConfig.RequestTimeout, out Double requestTimeout))
+                    cosmosClientOptions.RequestTimeout = TimeSpan.FromSeconds(requestTimeout);
                     logger.Info(requestTimeout);
     
                 if (int.TryParse(cosmosConfig.MaxRetryAttempt, out int maxRetryAttempt))
                     cosmosClientOptions.MaxRetryAttemptsOnRateLimitedRequests = maxRetryAttempt;
                     logger.Info(maxRetryAttempt);
 
-                if (TimeSpan.TryParse(cosmosConfig.MaxRetryWaitTime, out TimeSpan maxRetryWaitTime))
-                    cosmosClientOptions.MaxRetryWaitTimeOnRateLimitedRequests = maxRetryWaitTime;
+                if (Double.TryParse(cosmosConfig.MaxRetryWaitTime, out Double maxRetryWaitTime))
+                    cosmosClientOptions.MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(maxRetryWaitTime);
                     logger.Info(maxRetryWaitTime);
-
+                
                 if (int.TryParse(cosmosConfig.MaxPoolSize, out int maxPoolSize))
                     cosmosClientOptions.MaxRequestsPerTcpConnection = maxPoolSize;
                     logger.Info(maxPoolSize);
