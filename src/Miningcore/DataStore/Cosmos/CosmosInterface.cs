@@ -42,39 +42,46 @@ namespace Miningcore.DataStore.Cosmos {
 
             logger.Info(() => $"Connecting to Cosmos Server {cosmosConfig.EndpointUrl}");
 
-            var cosmosClientOptions = new CosmosClientOptions();
+            try 
+            {
+                var cosmosClientOptions = new CosmosClientOptions();
 
-            if (Enum.TryParse(cosmosConfig.ConsistencyLevel, out ConsistencyLevel consistencyLevel))
-                cosmosClientOptions.ConsistencyLevel = consistencyLevel;
+                if (Enum.TryParse(cosmosConfig.ConsistencyLevel, out ConsistencyLevel consistencyLevel))
+                    cosmosClientOptions.ConsistencyLevel = consistencyLevel;
 
-            if (Enum.TryParse(cosmosConfig.ConnectionMode, out ConnectionMode connectionMode))
-                cosmosClientOptions.ConnectionMode = connectionMode;
+                if (Enum.TryParse(cosmosConfig.ConnectionMode, out ConnectionMode connectionMode))
+                    cosmosClientOptions.ConnectionMode = connectionMode;
 
-            if (TimeSpan.TryParse(cosmosConfig.RequestTimeout, out TimeSpan requestTimeout))
-                cosmosClientOptions.RequestTimeout = requestTimeout;
- 
-            if (int.TryParse(cosmosConfig.MaxRetryAttempt, out int maxRetryAttempt))
-                cosmosClientOptions.MaxRetryAttemptsOnRateLimitedRequests = maxRetryAttempt;
+                if (Double.TryParse(cosmosConfig.RequestTimeout, out Double requestTimeout))
+                    cosmosClientOptions.RequestTimeout = TimeSpan.FromSeconds(requestTimeout);
+    
+                if (int.TryParse(cosmosConfig.MaxRetryAttempt, out int maxRetryAttempt))
+                    cosmosClientOptions.MaxRetryAttemptsOnRateLimitedRequests = maxRetryAttempt;
 
-            if (TimeSpan.TryParse(cosmosConfig.MaxRetryWaitTime, out TimeSpan maxRetryWaitTime))
-                cosmosClientOptions.MaxRetryWaitTimeOnRateLimitedRequests = maxRetryWaitTime;
+                if (Double.TryParse(cosmosConfig.MaxRetryWaitTime, out Double maxRetryWaitTime))
+                    cosmosClientOptions.MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(maxRetryWaitTime);
+                
+                if (int.TryParse(cosmosConfig.MaxPoolSize, out int maxPoolSize))
+                    cosmosClientOptions.MaxRequestsPerTcpConnection = maxPoolSize;
 
-            if (int.TryParse(cosmosConfig.MaxPoolSize, out int maxPoolSize))
-                cosmosClientOptions.MaxRequestsPerTcpConnection = maxPoolSize;
+                if (cosmosConfig.PreferredLocations != null && cosmosConfig.PreferredLocations.Count > 0)
+                    cosmosClientOptions.ApplicationPreferredRegions = cosmosConfig.PreferredLocations;
 
-            if (cosmosConfig.PreferredLocations != null && cosmosConfig.PreferredLocations.Count > 0)
-                cosmosClientOptions.ApplicationPreferredRegions = cosmosConfig.PreferredLocations;
+                var cosmos = new CosmosClient(cosmosConfig.EndpointUrl, cosmosConfig.AuthorizationKey, cosmosClientOptions);
 
-            var cosmos = new CosmosClient(cosmosConfig.EndpointUrl, cosmosConfig.AuthorizationKey, cosmosClientOptions);
+                // register CosmosClient
+                builder.RegisterInstance(cosmos).AsSelf().SingleInstance();
 
-            // register CosmosClient
-            builder.RegisterInstance(cosmos).AsSelf().SingleInstance();
-
-            // register repositories
-            builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
-                .Where(t => t.Namespace.StartsWith(typeof(BalanceChangeRepository).Namespace))
-                .AsImplementedInterfaces()
-                .SingleInstance();
+                // register repositories
+                builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
+                    .Where(t => t.Namespace.StartsWith(typeof(BalanceChangeRepository).Namespace))
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
+            }
+            catch (Exception e)
+            {
+                logger.ThrowLogPoolStartupException($"Fail to connect to the cosmos database {e}");
+            }
         }
     }
 }
