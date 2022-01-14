@@ -33,9 +33,9 @@
         "postgres": {
             "host": "db_host",
             "port": 5432,
-            "user": "db_user",
+            "user": "miningcore",
             "password": "db_password",
-            "database": "db_name",
+            "database": "miningcore",
             "Pooling": {
                 "MaxPoolSize": 100
             }
@@ -120,11 +120,11 @@
             "daemons": [
                 {
                     "host": "127.0.0.1",
-                    "port": 0
+                    "port": 8545
                 }
             ],
             "etherscan": {
-                "apiUrl": "https://api.etherscan.io/api",
+                "apiUrl": "http://localhost:1080/etherscan/api",
                 "apiKey": "api_key",
                 "daysToLookBack": 1
             },
