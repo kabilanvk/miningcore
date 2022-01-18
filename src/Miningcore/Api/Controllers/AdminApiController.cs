@@ -116,7 +116,7 @@ namespace Miningcore.Api.Controllers
             if (oldBalance.Amount < resetBalanceRequest.Amount)
             {
                 logger.Error($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {resetBalanceRequest.Amount}");
-                throw new ApiException($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance}. Amount: {resetBalanceRequest.Amount}", HttpStatusCode.BadRequest);
+                throw new ApiException($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {resetBalanceRequest.Amount}", HttpStatusCode.BadRequest);
             }
 
             await cf.RunTx(async (con, tx) =>
