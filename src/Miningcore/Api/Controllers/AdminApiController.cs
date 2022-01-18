@@ -126,7 +126,7 @@ namespace Miningcore.Api.Controllers
 
             var newBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
 
-            logger.Info($"Successfully reset balance for {resetBalanceRequest.Address}. Old Balance: {oldBalance}. New Balance: {newBalance}");
+            logger.Info($"Successfully reset balance for {resetBalanceRequest.Address}. Old Balance: {oldBalance.Amount}. New Balance: {newBalance.Amount}");
 
             return new { oldBalance, newBalance };
         }
