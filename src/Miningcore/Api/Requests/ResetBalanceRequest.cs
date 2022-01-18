@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Miningcore.Api.Requests
 {
     public class ResetBalanceRequest
