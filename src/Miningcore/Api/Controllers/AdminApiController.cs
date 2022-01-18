@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace Miningcore.Api.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("api/admin")]
+    [Route("api/admin")]IBalanceRepository
     [ApiController]
     public class AdminApiController : ControllerBase
     {
@@ -104,6 +104,31 @@ namespace Miningcore.Api.Controllers
                 //rethrow as ApiException to be handled by ApiExceptionHandlingMiddleware
                 throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
             }
+        }
+
+        [HttpPost("resetBalance")]
+        public async Task<object> ResetBalance(ResetBalanceRequest resetBalanceRequest)
+        {
+            logger.Info($"Resetting balance for {resetBalanceRequest.Address}. PoolId: {resetBalanceRequest.PoolId} Amount: {resetBalanceRequest.Address}");
+
+            var oldBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
+
+            if (oldBalance.Amount < resetBalanceRequest.Amount)
+            {
+                logger.Error($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {resetBalanceRequest.Amount}");
+                throw new ApiException($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance}. Amount: {resetBalanceRequest.Amount}", HttpStatusCode.BadRequest);
+            }
+
+            await cf.RunTx(async (con, tx) =>
+            {
+                return await balanceRepo.AddAmountAsync(con, tx, resetBalanceRequest.PoolId, resetBalanceRequest.Address, -resetBalanceRequest.Amount, "Reset balance after forced payout");
+            });
+
+            var newBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
+
+            logger.Info($"Successfully reset balance for {resetBalanceRequest.Address}. Old Balance: {oldBalance}. New Balance: {newBalance}");
+
+            return new { oldBalance, newBalance };
         }
 
         #endregion // Actions
