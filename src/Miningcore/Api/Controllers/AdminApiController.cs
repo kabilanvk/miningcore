@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace Miningcore.Api.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("api/admin")]IBalanceRepository
+    [Route("api/admin")]
     [ApiController]
     public class AdminApiController : ControllerBase
     {
