@@ -119,10 +119,7 @@ namespace Miningcore.Api.Controllers
                 throw new ApiException($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {resetBalanceRequest.Amount}", HttpStatusCode.BadRequest);
             }
 
-            await cf.RunTx(async (con, tx) =>
-            {
-                return await balanceRepo.AddAmountAsync(con, tx, resetBalanceRequest.PoolId, resetBalanceRequest.Address, -resetBalanceRequest.Amount, "Reset balance after forced payout");
-            });
+            await cf.Run(con => balanceRepo.AddAmountAsync(con, null, resetBalanceRequest.PoolId, resetBalanceRequest.Address, -resetBalanceRequest.Amount, "Reset balance after forced payout"));
 
             var newBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
 
