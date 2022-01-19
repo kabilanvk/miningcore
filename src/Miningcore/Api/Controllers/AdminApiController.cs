@@ -128,7 +128,7 @@ namespace Miningcore.Api.Controllers
 
             logger.Info($"Successfully reset balance for {resetBalanceRequest.Address}. Old Balance: {oldBalance.Amount}. New Balance: {newBalance.Amount}");
 
-            return new { oldBalance, newBalance };
+            return new ResetBalanceResponse{ OldBalance = oldBalance, NewBalance = newBalance };
         }
 
         #endregion // Actions
