@@ -107,7 +107,7 @@ namespace Miningcore.Api.Controllers
         }
 
         [HttpPost("resetBalance")]
-        public async Task<object> ResetBalance(ResetBalanceRequest resetBalanceRequest)
+        public async Task<ResetBalanceResponse> ResetBalance(ResetBalanceRequest resetBalanceRequest)
         {
             logger.Info($"Resetting balance for {resetBalanceRequest.Address}. PoolId: {resetBalanceRequest.PoolId} Amount: {resetBalanceRequest.Address}");
 
