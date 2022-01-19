@@ -86,5 +86,10 @@ namespace Miningcore.Blockchain.Ethereum.Configuration
         /// Percentage share miners receive as a decimal from 0 to 1
         /// </summary>
         public decimal RecipientShare { get; set; }
+
+        /// <summary>
+        /// Max block reward
+        /// </summary>
+        public double MaxBlockReward { get; set; }
     }
 }

@@ -80,7 +80,8 @@ namespace Miningcore.Blockchain.Ethereum
         private const decimal DefaultRecipientShare = 0.85m;
         private const float Sixty = 60; // The most important constant defined in this program
         private const decimal MaxPayout = 0.1m; // ethereum
-        private const double MaxBlockReward = 0.1d; //ethereum
+        private const double DefaultMaxBlockReward = 0.1d; //ethereum
+        private const int DefaultPayoutInterval = 600;
         private static ConcurrentDictionary<string, string> transactionHashes = new();
 
         protected override string LogCategory => "Ethereum Payout Handler";
@@ -798,6 +799,14 @@ namespace Miningcore.Blockchain.Ethereum
             }
 
             double payoutInterval = clusterConfig.PaymentProcessing.Interval;
+            
+            if (payoutInterval == 0)
+            {
+                logger.Warn(() => $"Payments are misconfigured. Interval should not be zero. Using the default interal of {DefaultPayoutInterval}");
+                payoutInterval = DefaultPayoutInterval;
+            }
+            
+            double pRatio = 1.0d;
 
             var now = DateTime.UtcNow;
 
@@ -807,18 +816,13 @@ namespace Miningcore.Blockchain.Ethereum
             if(poolState.LastPayout.HasValue && poolState.LastPayout.Value > now.AddDays(-7))
             {
                 var sinceLastPayout = now - poolState.LastPayout.Value;
+                pRatio = Math.Round(sinceLastPayout.TotalSeconds / payoutInterval, 1);
                 payoutInterval = sinceLastPayout.TotalSeconds;
                 logger.Info(() => $"Using payoutInterval from database. {payoutInterval}");
             }
             else
             {
                 logger.Warn(() => $"payoutInterval from database is invalid or too old: {poolState.LastPayout}. Using interval from config");
-            }
-
-            if(payoutInterval == 0)
-            {
-                logger.Warn(() => "Payments are misconfigured. Interval should not be zero");
-                payoutInterval = 600;
             }
 
             // Try to get the recipient share from the config
@@ -833,14 +837,28 @@ namespace Miningcore.Blockchain.Ethereum
                 logger.Info(() => $"Using the configured recipient share of {recipientShare}");
             }
 
+            // Try to get the MaxBlockReward from the config
+            var maxBlockReward = extraConfig.MaxBlockReward;
+            if (maxBlockReward <= 0 || maxBlockReward > 1)
+            {
+                maxBlockReward = DefaultMaxBlockReward;
+                logger.Info(() => $"Using the default max block reward of {maxBlockReward}");
+            }
+            else
+            {
+                logger.Info(() => $"Using the configured max block reward of {maxBlockReward}");
+            }
+
             var recipientBlockReward = (double) (blockReward * recipientShare);
             var blockFrequencyPerPayout = blockFrequency / (payoutInterval / Sixty);
             var blockData = recipientBlockReward / blockFrequencyPerPayout;
             logger.Info(() => $"BlockData : {blockData}, Network Block Time : {avgBlockTime}, Block Frequency : {blockFrequency}, PayoutInterval : {payoutInterval}");
 
-            if(blockData > MaxBlockReward)
+            // When checking against this threshold, we should take the LastPayout value into account. 
+            // For example, if payoutInterval is 10m, but  LastPayout is 30m ago, then we should consider 3x maxBlockReward
+            if (blockData > pRatio * maxBlockReward)
             {
-                logger.Error(() => "Rewards calculation data is invalid. BlockData is above max threshold.");
+                logger.Error(() => $"Rewards calculation data is invalid. BlockData is above max threshold of {pRatio * maxBlockReward}.");
                 throw new Exception("Invalid data for calculating mining rewards.  Aborting updateBalances");
             }
 
