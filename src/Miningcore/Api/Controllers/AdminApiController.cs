@@ -111,6 +111,12 @@ namespace Miningcore.Api.Controllers
         {
             logger.Info($"Resetting balance for {resetBalanceRequest.Address}. PoolId: {resetBalanceRequest.PoolId} Amount: {resetBalanceRequest.Address}");
 
+            if (resetBalanceRequest.Amount <= 0)
+            {
+                logger.Error($"Invalid resetBalance request. Amount is less than or equal to 0 - {resetBalanceRequest.Amount}");
+                throw new ApiException($"Invalid resetBalance request. Amount is less than or equal to 0 - {resetBalanceRequest.Amount}", HttpStatusCode.BadRequest);
+            }
+
             var oldBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
 
             if (oldBalance.Amount < resetBalanceRequest.Amount)
