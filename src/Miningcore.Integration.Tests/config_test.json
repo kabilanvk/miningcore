@@ -39,6 +39,17 @@
             "Pooling": {
                 "MaxPoolSize": 100
             }
+        },
+        "cosmos": {
+            "endpointUrl": "",
+            "authorizationKey": "",
+            "databaseId": "Wallets",
+            "maxRetryAttempt": "2",
+            "maxRetryWaitTime": "30",
+            "requestTimeout": "30",
+            "connectionMode": "Gateway",
+            "consistencyLevel": "Session",
+            "preferredLocations": [ "East US" ]
         }
     },
 
