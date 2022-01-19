@@ -106,6 +106,28 @@ namespace Miningcore.Api.Controllers
             }
         }
 
+        [HttpPost("resetBalance")]
+        public async Task<ResetBalanceResponse> ResetBalance(ResetBalanceRequest resetBalanceRequest)
+        {
+            logger.Info($"Resetting balance for {resetBalanceRequest.Address}. PoolId: {resetBalanceRequest.PoolId} Amount: {resetBalanceRequest.Address}");
+
+            var oldBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
+
+            if (oldBalance.Amount < resetBalanceRequest.Amount)
+            {
+                logger.Error($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {resetBalanceRequest.Amount}");
+                throw new ApiException($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {resetBalanceRequest.Amount}", HttpStatusCode.BadRequest);
+            }
+
+            await cf.Run(con => balanceRepo.AddAmountAsync(con, null, resetBalanceRequest.PoolId, resetBalanceRequest.Address, -resetBalanceRequest.Amount, "Reset balance after forced payout"));
+
+            var newBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
+
+            logger.Info($"Successfully reset balance for {resetBalanceRequest.Address}. Old Balance: {oldBalance.Amount}. New Balance: {newBalance.Amount}");
+
+            return new ResetBalanceResponse{ OldBalance = oldBalance, NewBalance = newBalance };
+        }
+
         #endregion // Actions
     }
 }
