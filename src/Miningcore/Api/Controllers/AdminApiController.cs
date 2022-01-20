@@ -106,32 +106,32 @@ namespace Miningcore.Api.Controllers
             }
         }
 
-        [HttpPost("resetBalance")]
-        public async Task<ResetBalanceResponse> ResetBalance(ResetBalanceRequest resetBalanceRequest)
+        [HttpPost("subtractBalance")]
+        public async Task<SubtractBalanceResponse> SubtractBalance(SubtractBalanceRequest subtractBalanceRequest)
         {
-            logger.Info($"Resetting balance for {resetBalanceRequest.Address}. PoolId: {resetBalanceRequest.PoolId} Amount: {resetBalanceRequest.Address}");
+            logger.Info($"Subtracting balance for {subtractBalanceRequest.Address}. PoolId: {subtractBalanceRequest.PoolId} Amount: {subtractBalanceRequest.Address}");
 
-            if (resetBalanceRequest.Amount <= 0)
+            if (subtractBalanceRequest.Amount <= 0)
             {
-                logger.Error($"Invalid resetBalance request. Amount is less than or equal to 0 - {resetBalanceRequest.Amount}");
-                throw new ApiException($"Invalid resetBalance request. Amount is less than or equal to 0 - {resetBalanceRequest.Amount}", HttpStatusCode.BadRequest);
+                logger.Error($"Invalid subtractBalance request. Amount is less than or equal to 0 - {subtractBalanceRequest.Amount}");
+                throw new ApiException($"Invalid subtractBalance request. Amount is less than or equal to 0 - {subtractBalanceRequest.Amount}", HttpStatusCode.BadRequest);
             }
 
-            var oldBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
+            var oldBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, subtractBalanceRequest.PoolId, subtractBalanceRequest.Address));
 
-            if (oldBalance.Amount < resetBalanceRequest.Amount)
+            if (oldBalance.Amount < subtractBalanceRequest.Amount)
             {
-                logger.Error($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {resetBalanceRequest.Amount}");
-                throw new ApiException($"Invalid resetBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {resetBalanceRequest.Amount}", HttpStatusCode.BadRequest);
+                logger.Error($"Invalid subtractBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {subtractBalanceRequest.Amount}");
+                throw new ApiException($"Invalid subtractBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {subtractBalanceRequest.Amount}", HttpStatusCode.BadRequest);
             }
 
-            await cf.Run(con => balanceRepo.AddAmountAsync(con, null, resetBalanceRequest.PoolId, resetBalanceRequest.Address, -resetBalanceRequest.Amount, "Reset balance after forced payout"));
+            await cf.Run(con => balanceRepo.AddAmountAsync(con, null, subtractBalanceRequest.PoolId, subtractBalanceRequest.Address, -subtractBalanceRequest.Amount, "Subtract balance after forced payout"));
 
-            var newBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, resetBalanceRequest.PoolId, resetBalanceRequest.Address));
+            var newBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, subtractBalanceRequest.PoolId, subtractBalanceRequest.Address));
 
-            logger.Info($"Successfully reset balance for {resetBalanceRequest.Address}. Old Balance: {oldBalance.Amount}. New Balance: {newBalance.Amount}");
+            logger.Info($"Successfully subtracted balance for {subtractBalanceRequest.Address}. Old Balance: {oldBalance.Amount}. New Balance: {newBalance.Amount}");
 
-            return new ResetBalanceResponse{ OldBalance = oldBalance, NewBalance = newBalance };
+            return new SubtractBalanceResponse { OldBalance = oldBalance, NewBalance = newBalance };
         }
 
         #endregion // Actions

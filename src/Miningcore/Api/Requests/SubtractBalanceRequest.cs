@@ -1,6 +1,6 @@
 namespace Miningcore.Api.Requests
 {
-    public class ResetBalanceRequest
+    public class SubtractBalanceRequest
     {
         public string PoolId { get; set; }
         public string Address { get; set; }
