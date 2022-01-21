@@ -15,7 +15,7 @@ steps:
     azureSubscription: 'NonProd App SP'
     KeyVaultName: 'mue1-ncrypto-dev-kv'
     SecretsFilter: '*'
-    RunAsPreJob: false
+    RunAsPreJob: true
 - task: Bash@3
   inputs:
     targetType: 'inline'
