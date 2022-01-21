@@ -7,6 +7,9 @@ SRC_DIR=$1
 OUT_DIR=$2
 BUILD_CONFIG=$3
 
+echo 'Host: $(PERSISTENCE_POSTGRES_HOST)'
+echo 'Host: $PERSISTENCE_POSTGRES_HOST'
+
 #Dependencies
 sudo apt-get update -y && sudo apt-get install -y --no-install-recommends jq 
 
