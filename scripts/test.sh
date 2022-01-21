@@ -6,17 +6,6 @@ set -e
 SRC_DIR=$1
 OUT_DIR=$2
 BUILD_CONFIG=$3
-#PERSISTENCE_POSTGRES_HOST=$4
-PERSISTENCE_POSTGRES_USER=$5
-PERSISTENCE_POSTGRES_PASSWORD=$6
-PERSISTENCE_COSMOS_ENDPOINTURL=$7
-PERSISTENCE_COSMOS_AUTHORIZATIONKEY=$8
-PERSISTENCE_COSMOS_DATABASEID=$9
-
-echo `Host: ${PERSISTENCE_POSTGRES_HOST}`
-echo `Host: $(persistence-postgres-host)`
-echo `Database: ${PERSISTENCE_COSMOS_DATABASEID}`
-echo `Database: ${persistence-cosmos-databaseId}`
 
 #Dependencies
 sudo apt-get update -y && sudo apt-get install -y --no-install-recommends jq 
