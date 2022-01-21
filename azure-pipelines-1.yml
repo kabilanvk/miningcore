@@ -17,9 +17,8 @@ steps:
     SecretsFilter: '*'
     RunAsPreJob: false
 - task: Bash@3
+  displayName: Run build
   inputs:
-    targetType: 'inline'
-    script: |
-      echo 'Host: $(persistence-postgres-host)'
-      sudo apt-get update -y && sudo apt-get install -y --no-install-recommends jq
-      jq '.persistence.postgres.host="$(persistence-postgres-host)"|.persistence.postgres.user="$(persistence-postgres-user)"|.persistence.postgres.password="$(persistence-postgres-password)"|.persistence.cosmos.endpointUrl="$(persistence-cosmos-endpointUrl)"|.persistence.cosmos.authorizationKey="$(persistence-cosmos-authorizationKey)"|.persistence.cosmos.databaseId="$(persistence-cosmos-databaseId)"' ./src/Miningcore.Integration.Tests/config_test.json > tmp.$$.json && mv tmp.$$.json ./src/Miningcore.Integration.Tests/config_test.json
+    filePath: './scripts/test.sh'
+    arguments: '$(System.DefaultWorkingDirectory) $(Build.ArtifactStagingDirectory) $(buildConfiguration)'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
