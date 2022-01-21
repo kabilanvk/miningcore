@@ -31,9 +31,9 @@
     },
     "persistence": {
         "postgres": {
-            "host": "127.0.0.1",
+            "host": "db_host",
             "port": 5432,
-            "user": "miningcore",
+            "user": "",
             "password": "",
             "database": "miningcore",
             "Pooling": {
@@ -43,7 +43,7 @@
         "cosmos": {
             "endpointUrl": "",
             "authorizationKey": "",
-            "databaseId": "Wallets",
+            "databaseId": "",
             "maxRetryAttempt": "2",
             "maxRetryWaitTime": "30",
             "requestTimeout": "30",

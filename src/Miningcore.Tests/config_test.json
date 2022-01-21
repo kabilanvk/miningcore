@@ -33,8 +33,8 @@
         "postgres": {
             "host": "db_host",
             "port": 5432,
-            "user": "miningcore",
-            "password": "db_password",
+            "user": "",
+            "password": "",
             "database": "miningcore",
             "Pooling": {
                 "MaxPoolSize": 100
@@ -43,7 +43,7 @@
         "cosmos": {
             "endpointUrl": "",
             "authorizationKey": "",
-            "databaseId": "Wallets",
+            "databaseId": "",
             "maxRetryAttempt": "2",
             "maxRetryWaitTime": "30",
             "requestTimeout": "30",
