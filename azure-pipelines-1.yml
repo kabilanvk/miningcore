@@ -20,7 +20,5 @@ steps:
   displayName: Run build
   inputs:
     filePath: './scripts/test.sh'
-    arguments: '$(System.DefaultWorkingDirectory) $(Build.ArtifactStagingDirectory) $(buildConfiguration)'
+    arguments: '$(System.DefaultWorkingDirectory) $(Build.ArtifactStagingDirectory) $(buildConfiguration) $(persistence-postgres-host) $(persistence-postgres-user) $(persistence-postgres-password) $(persistence-cosmos-endpointUrl) $(persistence-cosmos-authorizationKey) $(persistence-cosmos-databaseId)'
     workingDirectory: '$(System.DefaultWorkingDirectory)'
-  env:
-    PERSISTENCE_POSTGRES_HOST: $(persistence-postgres-host)
