@@ -14,7 +14,7 @@ PERSISTENCE_COSMOS_AUTHORIZATIONKEY=$8
 PERSISTENCE_COSMOS_DATABASEID=$9
 
 echo `Host: ${PERSISTENCE_POSTGRES_HOST}`
-echo `Host: ${persistence-postgres-host}`
+echo `Host: ${$(persistence-postgres-host)}`
 echo `Database: ${PERSISTENCE_COSMOS_DATABASEID}`
 echo `Database: ${persistence-cosmos-databaseId}`
 
