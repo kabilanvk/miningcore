@@ -20,13 +20,5 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      echo 'host=$(persistence-postgres-host)'
-      echo 'host:$(PERSISTENCE_POSTGRES_HOST)-$PERSISTENCE_POSTGRES_HOST'
-      echo '.persistence.postgres.host="$(PERSISTENCE_POSTGRES_HOST)"|.persistence.postgres.user="$PERSISTENCE_POSTGRES_USER"|.persistence.postgres.password="$PERSISTENCE_POSTGRES_PASSWORD"|.persistence.cosmos.endpointUrl="$PERSISTENCE_COSMOS_ENDPOINTURL"|.persistence.cosmos.authorizationKey="$PERSISTENCE_COSMOS_AUTHORIZATIONKEY"|.persistence.cosmos.databaseId="$PERSISTENCE_COSMOS_DATABASEID"'
-  env:
-    PERSISTENCE_POSTGRES_HOST: $(persistence-postgres-host)
-    PERSISTENCE_POSTGRES_USER: $(persistence-postgres-user)
-    PERSISTENCE_POSTGRES_PASSWORD: $(persistence-postgres-password)
-    PERSISTENCE_COSMOS_ENDPOINTURL: $(persistence-cosmos-endpointUrl)
-    PERSISTENCE_COSMOS_AUTHORIZATIONKEY: $(persistence-cosmos-authorizationKey)
-    PERSISTENCE_COSMOS_DATABASEID: $(persistence-cosmos-databaseId)
+      sudo apt-get update -y && sudo apt-get install -y --no-install-recommends jq
+      jq '.persistence.postgres.host="$(persistence-postgres-host)"|.persistence.postgres.user="$(persistence-postgres-user)"|.persistence.postgres.password="$(persistence-postgres-password)"|.persistence.cosmos.endpointUrl="$(persistence-cosmos-endpointUrl)"|.persistence.cosmos.authorizationKey="$(persistence-cosmos-authorizationKey)"|.persistence.cosmos.databaseId="$(persistence-cosmos-databaseId)"' $(Build.ArtifactStagingDirectory)/config_test.json > tmp.$$.json && mv tmp.$$.json $(Build.ArtifactStagingDirectory)/config_test.json
