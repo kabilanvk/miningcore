@@ -28,4 +28,4 @@ chmod +x * && ./etherscan-mock.sh
 
 #Update config
 cd $SRC_DIR
-jq '.persistence.postgres.host="$PERSISTENCE_POSTGRES_HOST"|.persistence.postgres.user="$PERSISTENCE_POSTGRES_USER"|.persistence.postgres.password="$PERSISTENCE_POSTGRES_PASSWORD"|.persistence.cosmos.endpointUrl="$PERSISTENCE_COSMOS_ENDPOINTURL"|.persistence.cosmos.authorizationKey="$PERSISTENCE_COSMOS_AUTHORIZATIONKEY"|.persistence.cosmos.databaseId="$PERSISTENCE_COSMOS_DATABASEID"' $OUT_DIR/config_test.json > tmp.$$.json && mv tmp.$$.json $OUT_DIR/config_test.json
+jq '.persistence.postgres.host="$(persistence-postgres-host)"|.persistence.postgres.user="$(persistence-postgres-user)"|.persistence.postgres.password="$(persistence-postgres-password)"|.persistence.cosmos.endpointUrl="$(persistence-cosmos-endpointUrl)"|.persistence.cosmos.authorizationKey="$(persistence-cosmos-authorizationKey)"|.persistence.cosmos.databaseId="$(persistence-cosmos-databaseId)"' $OUT_DIR/config_test.json > tmp.$$.json && mv tmp.$$.json $OUT_DIR/config_test.json
