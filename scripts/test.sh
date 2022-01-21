@@ -9,6 +9,7 @@ BUILD_CONFIG=$3
 
 echo 'Host: $(PERSISTENCE_POSTGRES_HOST)'
 echo 'Host: $PERSISTENCE_POSTGRES_HOST'
+echo 'Host: $(persistence-postgres-host)'
 
 #Dependencies
 sudo apt-get update -y && sudo apt-get install -y --no-install-recommends jq 
