@@ -1,0 +1,15 @@
+#!/bin/bash
+set -x
+set -e
+
+#Param(s)
+SRC_DIR=$1
+OUT_DIR=$2
+BUILD_CONFIG=$3
+
+#Dependencies
+sudo apt-get update -y && sudo apt-get install -y --no-install-recommends jq 
+
+#Update config
+cd $SRC_DIR
+jq '.persistence.postgres.host="$(persistence-postgres-host)"|.persistence.postgres.user="$(persistence-postgres-user)"|.persistence.postgres.password="$(persistence-postgres-password)"|.persistence.cosmos.endpointUrl="$(persistence-cosmos-endpointUrl)"|.persistence.cosmos.authorizationKey="$(persistence-cosmos-authorizationKey)"|.persistence.cosmos.databaseId="$(persistence-cosmos-databaseId)"' $OUT_DIR/config_test.json > tmp.$$.json && mv tmp.$$.json $OUT_DIR/config_test.json
