@@ -22,3 +22,5 @@ steps:
     filePath: './scripts/test.sh'
     arguments: '$(System.DefaultWorkingDirectory) $(Build.ArtifactStagingDirectory) $(buildConfiguration)'
     workingDirectory: '$(System.DefaultWorkingDirectory)'
+  env:
+    PERSISTENCE_POSTGRES_HOST: $(persistence-postgres-host)
