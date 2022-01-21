@@ -16,11 +16,6 @@ steps:
     KeyVaultName: 'mue1-ncrypto-dev-kv'
     SecretsFilter: '*'
     RunAsPreJob: false
-
-- script: sudo apt-get update -y && sudo apt-get install -y --no-install-recommends default-jdk
-  displayName: 'Run a one-line script'
-  env:
-    PERSISTENCE_POSTGRES_HOST: $(persistence-postgres-host)
 - task: Bash@3
   inputs:
     targetType: 'inline'
