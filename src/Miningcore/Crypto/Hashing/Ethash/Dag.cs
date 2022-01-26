@@ -112,7 +112,7 @@ namespace Miningcore.Crypto.Hashing.Ethash
                     }
                     else
                     {
-                        throw new TimeoutException($"The dag lock was not acquired. Timeout after {timeout.TotalMilliseconds}");
+                        logger.Info(() => $"The dag lock was not acquired. Timeout after {timeout.TotalMilliseconds}");
                     }
                 }, ct);
             }
