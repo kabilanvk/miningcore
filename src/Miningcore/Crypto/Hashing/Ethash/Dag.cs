@@ -22,6 +22,7 @@ namespace Miningcore.Crypto.Hashing.Ethash
 
         private IntPtr handle = IntPtr.Zero;
         private static readonly Semaphore sem = new Semaphore(1, 1);
+        private const int DefaultLockTimeoutInMinutes = 40;
 
         public DateTime LastUsed { get; set; }
 
@@ -59,53 +60,59 @@ namespace Miningcore.Crypto.Hashing.Ethash
         public async ValueTask GenerateAsync(string dagDir, ILogger logger, CancellationToken ct)
         {
             Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(dagDir), $"{nameof(dagDir)} must not be empty");
+            var timeout = TimeSpan.FromMinutes(DefaultLockTimeoutInMinutes);
 
             if(handle == IntPtr.Zero)
             {
                 await Task.Run(() =>
                 {
-                    try
+                    if (sem.WaitOne(timeout))
                     {
-                        sem.WaitOne();
-
-                        // re-check after obtaining lock
-                        if(handle != IntPtr.Zero)
-                            return;
-
-                        logger.Info(() => $"Generating DAG for epoch {Epoch}");
-
-                        var started = DateTime.UtcNow;
-                        var block = Epoch * EthereumConstants.EpochLength;
-
-                        // Generate a temporary cache
-                        var light = LibMultihash.ethash_light_new(block);
-
                         try
                         {
-                            // Generate the actual DAG
-                            handle = LibMultihash.ethash_full_new(dagDir, light, progress =>
+                            // re-check after obtaining lock
+                            if(handle != IntPtr.Zero)
+                                return;
+
+                            logger.Info(() => $"Generating DAG for epoch {Epoch}");
+
+                            var started = DateTime.UtcNow;
+                            var block = Epoch * EthereumConstants.EpochLength;
+
+                            // Generate a temporary cache
+                            var light = LibMultihash.ethash_light_new(block);
+
+                            try
                             {
-                                logger.Info(() => $"Generating DAG for epoch {Epoch}: {progress}%");
+                                // Generate the actual DAG
+                                handle = LibMultihash.ethash_full_new(dagDir, light, progress =>
+                                {
+                                    logger.Info(() => $"Generating DAG for epoch {Epoch}: {progress}%");
 
-                                return !ct.IsCancellationRequested ? 0 : 1;
-                            });
+                                    return !ct.IsCancellationRequested ? 0 : 1;
+                                });
 
-                            if(handle == IntPtr.Zero)
-                                throw new OutOfMemoryException("ethash_full_new IO or memory error");
+                                if(handle == IntPtr.Zero)
+                                    throw new OutOfMemoryException("ethash_full_new IO or memory error");
 
-                            logger.Info(() => $"Done generating DAG for epoch {Epoch} after {DateTime.UtcNow - started}");
+                                logger.Info(() => $"Done generating DAG for epoch {Epoch} after {DateTime.UtcNow - started}");
+                            }
+
+                            finally
+                            {
+                                if(light != IntPtr.Zero)
+                                    LibMultihash.ethash_light_delete(light);
+                            }
                         }
 
                         finally
                         {
-                            if(light != IntPtr.Zero)
-                                LibMultihash.ethash_light_delete(light);
+                            sem.Release();
                         }
                     }
-
-                    finally
+                    else
                     {
-                        sem.Release();
+                        logger.Info(() => $"The dag lock was not acquired. Timeout after {timeout.TotalMinutes} minutes");
                     }
                 }, ct);
             }
