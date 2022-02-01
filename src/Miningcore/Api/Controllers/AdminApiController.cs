@@ -45,6 +45,7 @@ namespace Miningcore.Api.Controllers
 
         private AdminGcStats gcStats;
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
+        private static readonly ConcurrentDictionary<string, bool> PayoutCurrentQueue = new();
 
         #region Actions
 
@@ -70,12 +71,12 @@ namespace Miningcore.Api.Controllers
         public async Task<decimal> GetMinerBalanceAsync(string poolId, string address)
         {
             var balance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, poolId, address));
-            
-            if (null != balance)
+
+            if(null != balance)
             {
                 return balance.Amount;
             }
-            
+
             return 0;
         }
 
@@ -83,6 +84,13 @@ namespace Miningcore.Api.Controllers
         public async Task<string> ForcePayout(string poolId, string address)
         {
             logger.Info($"Forcing payout for {address}");
+            if(PayoutCurrentQueue.TryGetValue(address, out _))
+            {
+                logger.Warn($"Payout already inprogress. miner:{address}");
+                throw new ApiException("Payout already inprogress", HttpStatusCode.Conflict);
+            }
+            PayoutCurrentQueue.TryAdd(address, true);
+
             try
             {
                 if(string.IsNullOrEmpty(poolId))
@@ -104,6 +112,10 @@ namespace Miningcore.Api.Controllers
                 //rethrow as ApiException to be handled by ApiExceptionHandlingMiddleware
                 throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
             }
+            finally
+            {
+                PayoutCurrentQueue.TryRemove(address, out _);
+            }
         }
 
         [HttpPost("subtractBalance")]
@@ -111,7 +123,7 @@ namespace Miningcore.Api.Controllers
         {
             logger.Info($"Subtracting balance for {subtractBalanceRequest.Address}. PoolId: {subtractBalanceRequest.PoolId} Amount: {subtractBalanceRequest.Address}");
 
-            if (subtractBalanceRequest.Amount <= 0)
+            if(subtractBalanceRequest.Amount <= 0)
             {
                 logger.Error($"Invalid subtractBalance request. Amount is less than or equal to 0 - {subtractBalanceRequest.Amount}");
                 throw new ApiException($"Invalid subtractBalance request. Amount is less than or equal to 0 - {subtractBalanceRequest.Amount}", HttpStatusCode.BadRequest);
@@ -119,7 +131,7 @@ namespace Miningcore.Api.Controllers
 
             var oldBalance = await cf.Run(con => balanceRepo.GetBalanceAsync(con, subtractBalanceRequest.PoolId, subtractBalanceRequest.Address));
 
-            if (oldBalance.Amount < subtractBalanceRequest.Amount)
+            if(oldBalance.Amount < subtractBalanceRequest.Amount)
             {
                 logger.Error($"Invalid subtractBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {subtractBalanceRequest.Amount}");
                 throw new ApiException($"Invalid subtractBalance request. Current balance is less than amount. Current balance: {oldBalance.Amount}. Amount: {subtractBalanceRequest.Amount}", HttpStatusCode.BadRequest);
