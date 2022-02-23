@@ -784,7 +784,7 @@ namespace Miningcore.Blockchain.Ethereum
                     retry:
 
                         // stream work updates
-                        var getWorkObs = daemon.WebsocketSubscribe(logger, wsDaemons, EthCommands.Subscribe, new[] { (object) wsSubscription, new object() });
+                        var getWorkObs = daemon.WebsocketSubscribe(logger, wsDaemons, EthCommands.Subscribe, new[] { wsSubscription });
 
                         // test subscription
                         var subcriptionResponse = await getWorkObs
