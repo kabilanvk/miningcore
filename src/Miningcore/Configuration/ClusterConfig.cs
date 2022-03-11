@@ -436,6 +436,19 @@ namespace Miningcore.Configuration
         /// Use SSL
         /// </summary>
         public bool Ssl { get; set; }
+
+        /// <summary>
+        /// The time to wait (in seconds) while trying to establish a connection.
+        /// </summary>
+        public int Timeout { get; set; } = 60;
+        /// <summary>
+        /// The time to wait (in seconds) while trying to execute a command.
+        /// </summary>
+        public int CommandTimeout { get; set; } = 60;
+        /// <summary>
+        /// The number of seconds of connection inactivity before Npgsql sends a keepalive query.
+        /// </summary>
+        public int KeepAlive { get; set; } = 60;
         /// <summary>
         /// Since opening/closing physical connections is an expensive process, this considerably speeds up your application
         /// </summary>

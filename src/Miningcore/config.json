@@ -36,6 +36,9 @@
             "user": "db_user",
             "password": "db_password",
             "database": "db_name",
+            "timeout": 60,
+            "commandTimeout": 60,
+            "keepAlive": 60,
             "Pooling": {
                 "MaxPoolSize": 100
             }
