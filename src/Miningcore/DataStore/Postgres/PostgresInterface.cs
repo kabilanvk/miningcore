@@ -11,27 +11,20 @@ using Miningcore.Persistence.Postgres.Repositories;
 using Miningcore.PoolCore;
 using Miningcore.Util;
 using ILogger = NLog.ILogger;
-using NLog.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using NLog;
 
 namespace Miningcore.DataStore.Postgres
 {
     internal class PostgresInterface
     {
-
         private static readonly ILogger logger = LogManager.GetLogger("Postgres");
 
         internal static void ConnectDatabase(ContainerBuilder builder)
         {
             ConfigurePersistence(builder);
         }
-
-
-
+        
         private static void ConfigurePersistence(ContainerBuilder builder)
         {
             if(Pool.clusterConfig.Persistence == null && Pool.clusterConfig.PaymentProcessing?.Enabled == true && Pool.clusterConfig.ShareRelay == null)
@@ -66,11 +59,14 @@ namespace Miningcore.DataStore.Postgres
             logger.Info(() => $"Connecting to Postgres Server {pgConfig.Host}:{pgConfig.Port} Database={pgConfig.Database} User={pgConfig.User}");
 
             // build connection string
-            var connectionString = $"Server={pgConfig.Host};Port={pgConfig.Port};Database={pgConfig.Database};User Id={pgConfig.User};Password={pgConfig.Password};Timeout=60;CommandTimeout=60;Keepalive=60;";
+            var connectionString = $"Server={pgConfig.Host};Port={pgConfig.Port};Database={pgConfig.Database};User Id={pgConfig.User};" +
+                                   $"Password={pgConfig.Password};Timeout={pgConfig.Timeout};CommandTimeout={pgConfig.CommandTimeout};" +
+                                   $"Keepalive={pgConfig.KeepAlive};";
 
             // Add pool configuration
             if(pgConfig.Pooling != null)
-                connectionString += $"Pooling=true;Minimum Pool Size={pgConfig.Pooling.MinPoolSize};Maximum Pool Size={(pgConfig.Pooling.MaxPoolSize > 0 ? pgConfig.Pooling.MaxPoolSize : 100)};";
+                connectionString += $"Pooling=true;Minimum Pool Size={pgConfig.Pooling.MinPoolSize};" +
+                                    $"Maximum Pool Size={(pgConfig.Pooling.MaxPoolSize > 0 ? pgConfig.Pooling.MaxPoolSize : 100)};";
 
             // concatenate SSL config to connectionString
             if(pgConfig.Ssl)
@@ -86,8 +82,7 @@ namespace Miningcore.DataStore.Postgres
                 .AsImplementedInterfaces()
                 .SingleInstance();
         }
-
-
+        
         private static void ConfigureDummyPersistence(ContainerBuilder builder)
         {
             // register connection factory
