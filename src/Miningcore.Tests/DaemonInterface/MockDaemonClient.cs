@@ -93,5 +93,10 @@ namespace Miningcore.Tests.DaemonInterface
         {
             throw new NotImplementedException();
         }
+
+        public IObservable<string[]> NotifyWorkSubscribe(ILogger logger, Dictionary<DaemonEndpointConfig, string> portMap)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -20,5 +20,11 @@ namespace Miningcore.Blockchain.Ethereum.Configuration
         /// Optional: Use SSL to for daemon websocket streaming
         /// </summary>
         public bool SslWs { get; set; }
+
+        /// <summary>
+        /// Optional: port for getWork push-notifications
+        /// (should match with geth --miner.notify or openethereum --notify-work)
+        /// </summary>
+        public string NotifyWorkUrl { get; set; }
     }
 }

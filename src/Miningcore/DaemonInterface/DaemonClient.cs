@@ -299,6 +299,14 @@ namespace Miningcore.DaemonInterface
                 .RefCount();
         }
 
+        public IObservable<string[]> NotifyWorkSubscribe(ILogger logger, Dictionary<DaemonEndpointConfig, string> portMap)
+        {
+            return Observable.Merge(portMap.Keys
+                    .Select(endPoint => NotifyWorkSubscribeEndpoint(logger, endPoint, portMap[endPoint])))
+                .Publish()
+                .RefCount();
+        }
+        
         #endregion // API-Surface
 
         private async Task<JsonRpcResponse> BuildRequestTask(ILogger logger, DaemonEndpointConfig endPoint, string method, object payload, CancellationToken ct, JsonSerializerSettings payloadJsonSerializerSettings = null)
@@ -634,5 +642,72 @@ namespace Miningcore.DaemonInterface
                 return Disposable.Create(() => { tcs.Cancel(); });
             }));
         }
+
+        private IObservable<string[]> NotifyWorkSubscribeEndpoint(ILogger logger, DaemonEndpointConfig endPoint, string url)
+        {
+            logger.Info(() => $"Subscribed to {url} for work notifications");
+            return Observable.Defer(() => Observable.Create<string[]>(obs =>
+            {
+                var tcs = new CancellationTokenSource();
+
+                Task.Run(async () =>
+                {
+                    using(tcs)
+                    {
+                        while(!tcs.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                var listener = new HttpListener();
+                                listener.Prefixes.Add(url + "/");
+                                listener.Start();
+                                while(!tcs.IsCancellationRequested)
+                                {
+                                    var listenerCallback = new AsyncCallback(state =>
+                                    {
+                                        try
+                                        {
+                                            var _listener = (HttpListener) state.AsyncState;
+                                            var context = _listener.EndGetContext(state);
+                                            var request = context.Request;
+                                            var response = context.Response;
+                                            using(var body = request.InputStream)
+                                            {
+                                                using(var reader = new System.IO.StreamReader(body, request.ContentEncoding))
+                                                {
+                                                    var work = JsonConvert.DeserializeObject<string[]>(reader.ReadToEnd());
+                                                    obs.OnNext(work);
+                                                    response.ContentLength64 = 0;
+                                                    response.OutputStream.Close();
+                                                }
+                                            }
+                                        }
+                                        catch(Exception ex)
+                                        {
+                                            logger.Error(() => $"Failed to process new work notification: {ex}");
+                                        }
+                                    });
+
+                                    var result = listener.BeginGetContext(listenerCallback, listener);
+                                    result.AsyncWaitHandle.WaitOne();
+                                }
+                                listener?.Stop();
+                            }
+                            catch(Exception ex)
+                            {
+                                logger.Error(() => $"Failed to start notify work listener: {ex}");
+                            }
+
+                            if(!tcs.IsCancellationRequested)
+                                logger.Info(() => $"Retrying to start notify work listener in 5 secs");
+                            await Task.Delay(TimeSpan.FromSeconds(5), tcs.Token);
+                        }
+                    }
+                }, tcs.Token);
+
+                return Disposable.Create(() => { tcs.Cancel(); });
+            }));
+        }
+
     }
 }

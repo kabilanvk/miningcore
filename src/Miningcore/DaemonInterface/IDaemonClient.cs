@@ -94,5 +94,8 @@ namespace Miningcore.DaemonInterface
             (int Port, string HttpPath, bool Ssl)> portMap, string method, object payload = null, JsonSerializerSettings payloadJsonSerializerSettings = null);
 
         IObservable<ZMessage> ZmqSubscribe(ILogger logger, Dictionary<DaemonEndpointConfig, (string Socket, string Topic)> portMap);
+
+        IObservable<string[]> NotifyWorkSubscribe(ILogger logger, Dictionary<DaemonEndpointConfig, string> portMap);
+
     }
 }

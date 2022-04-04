@@ -719,6 +719,35 @@ namespace Miningcore.Blockchain.Ethereum
         {
             if(extraPoolConfig?.BtStream == null)
             {
+                // Check for notifyWorkUrl config options
+                // If found, for now ignore all other parameters (e.g. blockRefreshInterval or wsStreaming)
+                var notifyWorkUrls = poolConfig.Daemons
+                    .Where(x => !string.IsNullOrEmpty(x.Extra.SafeExtensionDataAs<EthereumDaemonEndpointConfigExtra>()?.NotifyWorkUrl))
+                    .ToDictionary(x => x, x =>
+                    {
+                        var extra = x.Extra.SafeExtensionDataAs<EthereumDaemonEndpointConfigExtra>();
+                        return extra.NotifyWorkUrl;
+                    });
+
+                if(notifyWorkUrls.Count > 0)
+                {
+                    logger.Info(() => $"Subscribing to notify work push-updates from {string.Join(", ", notifyWorkUrls.Values)}");
+                    var getWorkObs = daemon.NotifyWorkSubscribe(logger, notifyWorkUrls);
+                    Jobs = getWorkObs.Where(x => x != null)
+                        .Select(AssembleBlockTemplate)
+                        .Select(UpdateJob)
+                        .Do(isNew =>
+                        {
+                            if(isNew)
+                                logger.Info(() => $"New work at height {currentJob.BlockTemplate.Height} and header {currentJob.BlockTemplate.Header} detected [{JobRefreshBy.NotifyWork}]");
+                        })
+                        .Where(isNew => isNew)
+                        .Select(_ => GetJobParamsForStratum(true))
+                        .Publish()
+                        .RefCount();
+                    return;
+                }
+
                 var enableStreaming = extraPoolConfig?.EnableDaemonWebsocketStreaming == true;
 
                 if(enableStreaming && !poolConfig.Daemons.Any(x => x.Extra.SafeExtensionDataAs<EthereumDaemonEndpointConfigExtra>()?.PortWs.HasValue == true))
@@ -797,6 +826,7 @@ namespace Miningcore.Blockchain.Ethereum
                             // older versions of geth only support subscriptions to "newBlocks"
                             if(!isRetry && subcriptionResponse.Error.Code == (int) BitcoinRPCErrorCode.RPC_METHOD_NOT_FOUND)
                             {
+                                logger.Error(() => $"Falling back from newHeads to newBlocks: {subcriptionResponse.Error.Message}");
                                 wsSubscription = "newBlocks";
 
                                 isRetry = true;
