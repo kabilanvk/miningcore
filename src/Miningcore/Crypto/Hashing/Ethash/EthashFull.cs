@@ -79,7 +79,7 @@ namespace Miningcore.Crypto.Hashing.Ethash
                 }
 
                 // If we used up the future cache, or need a refresh, regenerate
-                else if(future == null || future.Epoch <= epoch)
+                if(future == null || future.Epoch <= epoch)
                 {
                     logger.Info(() => $"Pre-generating DAG for epoch {epoch + 1}");
                     future = new Dag(epoch + 1);
@@ -92,7 +92,11 @@ namespace Miningcore.Crypto.Hashing.Ethash
                 result.LastUsed = DateTime.UtcNow;
             }
 
-            await result.GenerateAsync(dagDir, logger, ct);
+            // Only download the DAG if it did not come out of the cache or future
+            if (!result.IsGenerated)
+            {
+                await result.GenerateAsync(dagDir, logger, ct);
+            }
 
             return result;
         }

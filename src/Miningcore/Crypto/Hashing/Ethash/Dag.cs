@@ -16,9 +16,11 @@ namespace Miningcore.Crypto.Hashing.Ethash
         public Dag(ulong epoch)
         {
             Epoch = epoch;
+            IsGenerated = false;
         }
 
         public ulong Epoch { get; set; }
+        public bool IsGenerated { get; set; }
 
         private IntPtr handle = IntPtr.Zero;
         private static readonly Semaphore sem = new Semaphore(1, 1);
@@ -94,6 +96,8 @@ namespace Miningcore.Crypto.Hashing.Ethash
 
                                 if(handle == IntPtr.Zero)
                                     throw new OutOfMemoryException("ethash_full_new IO or memory error");
+
+                                IsGenerated = true;
 
                                 logger.Info(() => $"Done generating DAG for epoch {Epoch} after {DateTime.UtcNow - started}");
                             }
