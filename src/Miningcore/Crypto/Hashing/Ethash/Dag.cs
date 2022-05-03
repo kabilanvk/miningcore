@@ -24,7 +24,7 @@ namespace Miningcore.Crypto.Hashing.Ethash
 
         private IntPtr handle = IntPtr.Zero;
         private static readonly Semaphore sem = new Semaphore(1, 1);
-        private const int DefaultLockTimeoutInMinutes = 40;
+        private const int DefaultLockTimeoutInMinutes = 80;
 
         public DateTime LastUsed { get; set; }
 
