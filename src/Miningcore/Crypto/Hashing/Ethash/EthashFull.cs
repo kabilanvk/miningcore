@@ -92,7 +92,11 @@ namespace Miningcore.Crypto.Hashing.Ethash
                 result.LastUsed = DateTime.UtcNow;
             }
 
-            await result.GenerateAsync(dagDir, logger, ct);
+            // Only download the DAG if it did not come out of the cache or future
+            if (!result.IsGenerated)
+            {
+                await result.GenerateAsync(dagDir, logger, ct);
+            }
 
             return result;
         }
