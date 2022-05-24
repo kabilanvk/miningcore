@@ -77,6 +77,7 @@ namespace Miningcore.Blockchain.Ethereum
         private const int TwentyFourHrs = 24;
         private const string BlockReward = "blockReward";
         private const string BlockAvgTime = "blockAvgTime";
+        private const string PoolBlockAvgTime = "poolBlockAvgTime";
         private const decimal DefaultRecipientShare = 0.85m;
         private const float Sixty = 60; // The most important constant defined in this program
         private const decimal MaxPayout = 0.1m; // ethereum
@@ -784,6 +785,7 @@ namespace Miningcore.Blockchain.Ethereum
 
             //double avgBlockTime = blockChainStats.NetworkDifficulty / networkHashRate;
             var avgBlockTime = await GetNetworkBlockAverageTime(poolConfig);
+            var poolAvgBlockTime = await GetPoolBlockAverageTime(poolConfig);
 
             if(avgBlockTime == 0)
             {
@@ -791,6 +793,7 @@ namespace Miningcore.Blockchain.Ethereum
             }
 
             var blockFrequency = networkHashRate / poolHashRate * (avgBlockTime / Sixty);
+            var poolBlockFrequency = networkHashRate / poolHashRate * (poolAvgBlockTime / Sixty);
 
             double maxBlockFrequency = poolConfig.PaymentProcessing.MaxBlockFrequency;
             if(blockFrequency > maxBlockFrequency)
@@ -851,12 +854,17 @@ namespace Miningcore.Blockchain.Ethereum
 
             var recipientBlockReward = (double) (blockReward * recipientShare);
             var blockFrequencyPerPayout = blockFrequency / (payoutInterval / Sixty);
+            var poolBlockFrequencyPerPayout = poolBlockFrequency / (payoutInterval / Sixty);
             var blockData = recipientBlockReward / blockFrequencyPerPayout;
-            logger.Info(() => $"BlockData : {blockData}, Network Block Time : {avgBlockTime}, Block Frequency : {blockFrequency}, PayoutInterval : {payoutInterval}");
+            var poolBlockData = recipientBlockReward / poolBlockFrequencyPerPayout;
+            logger.Info(() => $"BlockData: {blockData}, Network Block Time: {avgBlockTime}, Block Frequency: {blockFrequency}, PayoutInterval: {payoutInterval}");
+            logger.Info(() => $"PoolBlkData: {poolBlockData}, PoolBlkTime: {poolAvgBlockTime}, PoolBlkFreq: {poolBlockFrequency}, PoolBlkFreqPerPayout: {poolBlockFrequencyPerPayout}");
+
+            if(extraConfig.PoolBlockAvgTimeCalc) blockData = poolBlockData;
 
             // When checking against this threshold, we should take the LastPayout value into account. 
             // For example, if payoutInterval is 10m, but  LastPayout is 30m ago, then we should consider 3x maxBlockReward
-            if (blockData > pRatio * maxBlockReward)
+            if(blockData > pRatio * maxBlockReward)
             {
                 logger.Error(() => $"Rewards calculation data is invalid. BlockData is above max threshold of {pRatio * maxBlockReward}.");
                 throw new Exception("Invalid data for calculating mining rewards.  Aborting updateBalances");
@@ -905,6 +913,26 @@ namespace Miningcore.Blockchain.Ethereum
             //Add blockReward to cache and set cache data expiration to 24 hours
             logger.Info(() => $"Block avg time from EtherScan: {blockAvgTime}");
             Cache.Set(BlockAvgTime, blockAvgTime, TimeSpan.FromHours(TwentyFourHrs));
+
+            return blockAvgTime;
+        }
+
+        private async Task<double> GetPoolBlockAverageTime(PoolConfig poolConfig)
+        {
+            if(Cache.TryGetValue(PoolBlockAvgTime, out double blockAvgTime))
+            {
+                return blockAvgTime;
+            }
+
+            var esApi = ctx.Resolve<EtherScanEndpoint>();
+            blockAvgTime = await esApi.GetDailyAverageBlockTime(10, poolConfig.Address);
+            if(blockAvgTime <= 0)
+            {
+                throw new InvalidDataException("GetPoolBlockAverageTime failed");
+            }
+            //Add blockReward to cache and set cache data expiration to 24 hours
+            logger.Info(() => $"Pool block avg time from EtherScan: {blockAvgTime}");
+            Cache.Set(PoolBlockAvgTime, blockAvgTime, TimeSpan.FromHours(24));
 
             return blockAvgTime;
         }
