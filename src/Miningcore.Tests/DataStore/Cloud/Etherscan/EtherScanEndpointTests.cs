@@ -30,11 +30,11 @@ namespace Miningcore.Tests.DataStore.Cloud.EtherScan
         [Fact]
         public async Task GetDailyAverageBlockTime_Successful()
         {
-            clusterConfig.Pools[0].EtherScan.ApiKey = "";
+            clusterConfig.Pools[0].EtherScan.ApiKey = "key";
             clusterConfig.Pools[0].EtherScan.ApiUrl = "https://api.etherscan.io/api";
             etherScanEndpoint = new EtherScanEndpoint(clusterConfig);
 
-            var res = await etherScanEndpoint.GetDailyAverageBlockTime(10, "0xbd5CDD2B3D04Ce42605AAEa7E8355ac0e0a12710");
+            var res = await etherScanEndpoint.GetDailyAverageBlockTime(10, "address");
             Assert.NotNull(res);
             Assert.True(res > 0);
         }
