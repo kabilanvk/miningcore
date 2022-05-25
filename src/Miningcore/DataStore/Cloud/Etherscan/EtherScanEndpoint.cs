@@ -66,7 +66,7 @@ namespace Miningcore.DataStore.Cloud.EtherScan
             return await GetDailyAverageBlockTime(DateTime.Today.AddDays(-lookBackDays), DateTime.Today);
         }
 
-        public async Task<List<MinedBlock>> GetminedBlocks(int recentBlocks, string address)
+        public async Task<List<MinedBlock>> GetMinedBlocks(int recentBlocks, string address)
         {
             var url = $"?module=account&action=getminedblocks&address={address}&blocktype=blocks" +
                       $"&page=1&offset={recentBlocks}&apikey={apiKey}";
@@ -74,7 +74,7 @@ namespace Miningcore.DataStore.Cloud.EtherScan
             var resp = await TelemetryUtil.TrackDependency(() => GetAsync<EtherScanResponse<List<MinedBlock>>>(url, new Dictionary<string, string>()
                 {
                     {WebConstants.HeaderAccept, WebConstants.ContentTypeText}
-                }), DependencyType.EtherScan, nameof(GetminedBlocks), $"blks:{recentBlocks},addr:{address}");
+                }), DependencyType.EtherScan, nameof(GetMinedBlocks), $"blks:{recentBlocks},addr:{address}");
 
             if(resp?.Status > 0) return resp.Result;
 
@@ -85,7 +85,7 @@ namespace Miningcore.DataStore.Cloud.EtherScan
         public async Task<double> GetDailyAverageBlockTime(int recentBlocks, string address)
         {
             var timeDiff = new List<double>();
-            var blocks = await GetminedBlocks(recentBlocks, address);
+            var blocks = await GetMinedBlocks(recentBlocks, address);
             var orderedBlocks = blocks.OrderByDescending(b => b.TimeStamp).ToList();
             for(var index = 1; index < orderedBlocks.Count; index++)
             {
