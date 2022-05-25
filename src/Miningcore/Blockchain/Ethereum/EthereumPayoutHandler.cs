@@ -793,7 +793,7 @@ namespace Miningcore.Blockchain.Ethereum
             }
 
             var blockFrequency = networkHashRate / poolHashRate * (avgBlockTime / Sixty);
-            var poolBlockFrequency = networkHashRate / poolHashRate * (poolAvgBlockTime / Sixty);
+            var poolBlockFrequency = poolAvgBlockTime > 0 ? networkHashRate / poolHashRate * (poolAvgBlockTime / Sixty) : 0;
 
             double maxBlockFrequency = poolConfig.PaymentProcessing.MaxBlockFrequency;
             if(blockFrequency > maxBlockFrequency)
