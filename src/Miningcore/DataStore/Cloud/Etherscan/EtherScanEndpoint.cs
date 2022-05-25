@@ -87,6 +87,8 @@ namespace Miningcore.DataStore.Cloud.EtherScan
             var timeDiff = new List<double>();
             var blocks = await GetMinedBlocks(recentBlocks, address);
             var orderedBlocks = blocks.OrderByDescending(b => b.TimeStamp).ToList();
+            if(orderedBlocks.Count < 2) return 0;
+
             for(var index = 1; index < orderedBlocks.Count; index++)
             {
                 timeDiff.Add(orderedBlocks[index - 1].TimeStamp - orderedBlocks[index].TimeStamp);

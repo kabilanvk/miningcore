@@ -219,7 +219,7 @@ namespace Miningcore.Blockchain.Ethereum
 
                             if(extraConfig?.KeepTransactionFees == false && blockInfo.Transactions?.Length > 0)
                                 block.Reward += await GetTxRewardAsync(blockInfo); // tx fees
-                            
+
                             var gasFeeInEth = Web3.Convert.FromWei(blockInfo.BaseFeePerGas);
                             var burntFee = gasFeeInEth * blockInfo.GasUsed; // burnt fees
                             block.Reward = block.Reward - burntFee;
@@ -802,13 +802,13 @@ namespace Miningcore.Blockchain.Ethereum
             }
 
             double payoutInterval = clusterConfig.PaymentProcessing.Interval;
-            
-            if (payoutInterval == 0)
+
+            if(payoutInterval == 0)
             {
                 logger.Warn(() => $"Payments are misconfigured. Interval should not be zero. Using the default interal of {DefaultPayoutInterval}");
                 payoutInterval = DefaultPayoutInterval;
             }
-            
+
             double pRatio = 1.0d;
 
             var now = DateTime.UtcNow;
@@ -830,7 +830,7 @@ namespace Miningcore.Blockchain.Ethereum
 
             // Try to get the recipient share from the config
             var recipientShare = extraConfig.RecipientShare;
-            if (recipientShare <= 0 || recipientShare > 1)
+            if(recipientShare <= 0 || recipientShare > 1)
             {
                 recipientShare = DefaultRecipientShare;
                 logger.Info(() => $"Using the default recipient share of {recipientShare}");
@@ -842,7 +842,7 @@ namespace Miningcore.Blockchain.Ethereum
 
             // Try to get the MaxBlockReward from the config
             var maxBlockReward = extraConfig.MaxBlockReward;
-            if (maxBlockReward <= 0 || maxBlockReward > 1)
+            if(maxBlockReward <= 0 || maxBlockReward > 1)
             {
                 maxBlockReward = DefaultMaxBlockReward;
                 logger.Info(() => $"Using the default max block reward of {maxBlockReward}");
@@ -856,11 +856,11 @@ namespace Miningcore.Blockchain.Ethereum
             var blockFrequencyPerPayout = blockFrequency / (payoutInterval / Sixty);
             var poolBlockFrequencyPerPayout = poolBlockFrequency / (payoutInterval / Sixty);
             var blockData = recipientBlockReward / blockFrequencyPerPayout;
-            var poolBlockData = recipientBlockReward / poolBlockFrequencyPerPayout;
+            var poolBlockData = poolBlockFrequencyPerPayout > 0 ? recipientBlockReward / poolBlockFrequencyPerPayout : 0;
             logger.Info(() => $"BlockData: {blockData}, Network Block Time: {avgBlockTime}, Block Frequency: {blockFrequency}, PayoutInterval: {payoutInterval}");
             logger.Info(() => $"PoolBlkData: {poolBlockData}, PoolBlkTime: {poolAvgBlockTime}, PoolBlkFreq: {poolBlockFrequency}, PoolBlkFreqPerPayout: {poolBlockFrequencyPerPayout}");
 
-            if(extraConfig.PoolBlockAvgTimeCalc) blockData = poolBlockData;
+            if(extraConfig.PoolBlockAvgTimeCalc && poolBlockData > 0) blockData = poolBlockData;
 
             // When checking against this threshold, we should take the LastPayout value into account. 
             // For example, if payoutInterval is 10m, but  LastPayout is 30m ago, then we should consider 3x maxBlockReward
