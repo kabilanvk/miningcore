@@ -154,7 +154,8 @@
                 "gasDeductionPercentage": 20,
                 "payoutBatchSize": 5,
                 "minersPayTxFees": true,
-                "maxBlockReward": 0.1
+                "maxBlockReward": 0.1,
+                "PoolBlockAvgTimeCalc": false
             }
         }
     ]
