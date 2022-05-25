@@ -27,4 +27,11 @@ namespace Miningcore.DataStore.Cloud.EtherScan
         [JsonProperty("blockTime_sec")]
         public double BlockTimeSec { get; set; }
     }
+
+    public class MinedBlock
+    {
+        public double BlockNumber { get; set; }
+        public double TimeStamp { get; set; }
+        public decimal BlockReward { get; set; }
+    }
 }

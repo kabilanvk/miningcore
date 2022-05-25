@@ -91,5 +91,10 @@ namespace Miningcore.Blockchain.Ethereum.Configuration
         /// Max block reward
         /// </summary>
         public double MaxBlockReward { get; set; }
+
+        /// <summary>
+        /// Use pool's block average time instead of network
+        /// </summary>
+        public bool PoolBlockAvgTimeCalc { get; set; }
     }
 }
