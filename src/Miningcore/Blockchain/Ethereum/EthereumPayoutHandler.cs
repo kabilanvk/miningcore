@@ -926,10 +926,7 @@ namespace Miningcore.Blockchain.Ethereum
 
             var esApi = ctx.Resolve<EtherScanEndpoint>();
             blockAvgTime = await esApi.GetDailyAverageBlockTime(10, poolConfig.Address);
-            if(blockAvgTime <= 0)
-            {
-                throw new InvalidDataException("GetPoolBlockAverageTime failed");
-            }
+            
             //Add blockReward to cache and set cache data expiration to 24 hours
             logger.Info(() => $"Pool block avg time from EtherScan: {blockAvgTime}");
             Cache.Set(PoolBlockAvgTime, blockAvgTime, TimeSpan.FromHours(24));
