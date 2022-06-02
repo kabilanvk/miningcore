@@ -96,5 +96,10 @@ namespace Miningcore.Blockchain.Ethereum.Configuration
         /// Use pool's block average time instead of network
         /// </summary>
         public bool PoolBlockAvgTimeCalc { get; set; }
+
+        /// <summary>
+        /// Pool's block average lookback count
+        /// </summary>
+        public int PoolBlockAvgHistory { get; set; }
     }
 }

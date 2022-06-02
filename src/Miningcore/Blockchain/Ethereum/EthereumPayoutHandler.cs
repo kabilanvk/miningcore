@@ -784,21 +784,21 @@ namespace Miningcore.Blockchain.Ethereum
             }
 
             //double avgBlockTime = blockChainStats.NetworkDifficulty / networkHashRate;
-            var avgBlockTime = await GetNetworkBlockAverageTime(poolConfig);
-            var poolAvgBlockTime = await GetPoolBlockAverageTime(poolConfig);
+            var avgBlockTimeHashrate = await GetNetworkBlockAverageTime(poolConfig);
+            var avgBlockTimeHistory = await GetPoolBlockAverageTime(poolConfig);
 
-            if(avgBlockTime == 0)
+            if(avgBlockTimeHashrate == 0)
             {
                 throw new Exception($"Invalid state in CalculateBlockData - AvgBlockTime is 0");
             }
 
-            var blockFrequency = networkHashRate / poolHashRate * (avgBlockTime / Sixty);
-            var poolBlockFrequency = poolAvgBlockTime > 0 ? networkHashRate / poolHashRate * (poolAvgBlockTime / Sixty) : 0;
+            var blockFrequencyHashrate = networkHashRate / poolHashRate * (avgBlockTimeHashrate / Sixty);
+            var blockFrequencyHistory = avgBlockTimeHistory > 0 ? avgBlockTimeHistory / Sixty : 0;
 
             double maxBlockFrequency = poolConfig.PaymentProcessing.MaxBlockFrequency;
-            if(blockFrequency > maxBlockFrequency)
+            if(blockFrequencyHashrate > maxBlockFrequency)
             {
-                blockFrequency = maxBlockFrequency;
+                blockFrequencyHashrate = maxBlockFrequency;
             }
 
             double payoutInterval = clusterConfig.PaymentProcessing.Interval;
@@ -853,14 +853,14 @@ namespace Miningcore.Blockchain.Ethereum
             }
 
             var recipientBlockReward = (double) (blockReward * recipientShare);
-            var blockFrequencyPerPayout = blockFrequency / (payoutInterval / Sixty);
-            var poolBlockFrequencyPerPayout = poolBlockFrequency / (payoutInterval / Sixty);
-            var blockData = recipientBlockReward / blockFrequencyPerPayout;
-            var poolBlockData = poolBlockFrequencyPerPayout > 0 ? recipientBlockReward / poolBlockFrequencyPerPayout : 0;
-            logger.Info(() => $"BlockData: {blockData}, Network Block Time: {avgBlockTime}, Block Frequency: {blockFrequency}, PayoutInterval: {payoutInterval}");
-            logger.Info(() => $"PoolBlkData: {poolBlockData}, PoolBlkTime: {poolAvgBlockTime}, PoolBlkFreq: {poolBlockFrequency}, PoolBlkFreqPerPayout: {poolBlockFrequencyPerPayout}");
+            var blockFrequencyHashratePerPayout = blockFrequencyHashrate / (payoutInterval / Sixty);
+            var blockFrequencyHistoryPerPayout = blockFrequencyHistory / (payoutInterval / Sixty);
+            var blockData = recipientBlockReward / blockFrequencyHashratePerPayout;
+            var blockDataByHistory = blockFrequencyHistoryPerPayout > 0 ? recipientBlockReward / blockFrequencyHistoryPerPayout : 0;
+            logger.Info(() => $"HashrateBlockData: {blockData}, NetworkBlockTime: {avgBlockTimeHashrate}, BlockFreqHashrate: {blockFrequencyHashrate}, PayoutInterval: {payoutInterval}, BlockReward: {recipientBlockReward}");
+            logger.Info(() => $"HistoryBlockData: {blockDataByHistory}, PoolBlockTime: {avgBlockTimeHistory}, BlockFreqHistory: {blockFrequencyHistory}, BlockFreqPerPayout: {blockFrequencyHistoryPerPayout}");
 
-            if(extraConfig.PoolBlockAvgTimeCalc && poolBlockData > 0) blockData = poolBlockData;
+            if(extraConfig.PoolBlockAvgTimeCalc && blockDataByHistory > 0) blockData = blockDataByHistory;
 
             // When checking against this threshold, we should take the LastPayout value into account. 
             // For example, if payoutInterval is 10m, but  LastPayout is 30m ago, then we should consider 3x maxBlockReward
@@ -925,7 +925,7 @@ namespace Miningcore.Blockchain.Ethereum
             }
 
             var esApi = ctx.Resolve<EtherScanEndpoint>();
-            blockAvgTime = await esApi.GetDailyAverageBlockTime(10, poolConfig.Address);
+            blockAvgTime = await esApi.GetDailyAverageBlockTime(extraConfig.PoolBlockAvgHistory, poolConfig.Address);
             
             //Add blockReward to cache and set cache data expiration to 24 hours
             logger.Info(() => $"Pool block avg time from EtherScan: {blockAvgTime}");

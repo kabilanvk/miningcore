@@ -155,7 +155,8 @@
                 "payoutBatchSize": 5,
                 "minersPayTxFees": true,
                 "maxBlockReward": 0.1,
-                "PoolBlockAvgTimeCalc": false
+                "poolBlockAvgTimeCalc": false,
+                "poolBlockAvgHistory": 25
             }
         }
     ]
